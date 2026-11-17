@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Do Boleto ao Burnout</title>
+<meta name="description" content="Revista digital gratuita: por que o dinheiro que falta no fim do mês tira o sono, o foco e a saúde, e como sair desse ciclo.">
+<meta property="og:title" content="Do Boleto ao Burnout">
+<meta property="og:description" content="Por que o dinheiro que falta no fim do mês tira o sono, o foco e a saúde. E como sair desse ciclo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#FFFCF7; --paper-2:#FFF3E0; --ink:#1C1814; --muted:#6A6158; --line:#EADFCF;
+  --orange:#F59600; --orange-ink:#B86A00; --orange-soft:#FFEACB;
+  --green:#077A16; --grafite:#2A2520; --on-dark:#FFF8EE; --error:#C62828;
+  --f-display:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.05;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+
+/* HERO */
+.hero{background:var(--grafite);color:var(--on-dark);overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start;padding-block:44px 56px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:15px;color:#CFC6BA;letter-spacing:-.01em}
+.brand b{color:var(--orange)}
+.eyebrow{display:inline-block;margin-top:28px;font-family:var(--f-display);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;background:var(--orange);color:#1C1814;border-radius:999px;padding:5px 12px}
+.hero h1{font-size:clamp(52px,11vw,104px);font-weight:800;letter-spacing:-.045em;line-height:.9;margin-top:18px}
+.hero h1 em{font-style:normal;color:var(--orange)}
+.hook{font-size:clamp(20px,3.2vw,24px);line-height:1.45;color:#EFE7DA;margin-top:22px;max-width:30ch}
+.barcode{margin-top:28px;max-width:520px}
+.bars{height:46px;display:flex;align-items:stretch;gap:2px}
+.bars i{display:block;background:var(--on-dark)}
+.bars i.o{background:var(--orange)}
+.pulse{display:block;width:100%;max-width:520px;height:54px;margin-top:6px}
+.pulse path{fill:none;stroke:var(--orange);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.facts{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;font-family:var(--f-display);font-size:14px;color:#CFC6BA}
+.facts span::before{content:"✓ ";color:var(--orange);font-weight:800}
+
+/* FORM */
+.card{background:var(--paper);color:var(--ink);border-radius:24px;padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.card h2{font-size:24px;font-weight:800}
+.card .sub{font-size:16px;color:var(--muted);margin-top:6px;line-height:1.45}
+form{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-family:var(--f-display);font-weight:600;font-size:14px}
+.field input{font:500 17px/1.2 var(--f-display);padding:14px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);width:100%}
+.field input:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 4px var(--orange-soft)}
+.field input[aria-invalid="true"]{border-color:var(--error)}
+.err{font-family:var(--f-display);font-size:13px;color:var(--error);min-height:0}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--muted)}
+.consent input{width:20px;height:20px;accent-color:var(--orange);flex:0 0 auto;margin-top:2px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+button.go{font:800 18px/1 var(--f-display);border:0;border-radius:14px;padding:18px 20px;background:var(--orange);color:#1C1814;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+button.go:hover{filter:brightness(1.05)}
+button.go:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+button.go[disabled]{opacity:.7;cursor:progress}
+.spin{width:18px;height:18px;border:3px solid rgba(28,24,20,.25);border-top-color:#1C1814;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.privacy{font-size:13px;color:var(--muted);text-align:center;line-height:1.4}
+.form-err{font-family:var(--f-display);font-size:14px;color:var(--error);text-align:center}
+.ok{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.ok .tick{width:52px;height:52px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font:800 26px var(--f-display)}
+.ok a{font:800 17px/1 var(--f-display);text-decoration:none;background:var(--grafite);color:var(--on-dark);border-radius:14px;padding:16px 20px}
+
+/* CONTEÚDO */
+.inside{padding-block:56px 24px}
+.kicker{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-ink)}
+.inside h2{font-size:clamp(30px,6vw,44px);font-weight:800;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.item{border-top:3px solid var(--ink);padding-top:14px;min-width:0}
+.item .n{font-family:var(--f-display);font-weight:800;font-size:26px;color:var(--orange);line-height:1}
+.item h3{font-size:18px;font-weight:800;margin-top:8px;line-height:1.2}
+.item p{font-size:16px;line-height:1.5;color:var(--muted);margin-top:6px}
+.stat{margin-top:44px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;background:var(--paper-2);border-radius:22px;padding:24px}
+.stat b{font-family:var(--f-display);font-weight:800;font-size:clamp(46px,10vw,72px);letter-spacing:-.04em;line-height:1;color:var(--orange-ink)}
+.stat p{font-size:18px;line-height:1.45}
+.stat small{display:block;font-size:13px;color:var(--muted);margin-top:6px}
+.for{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+.for div{border:1.5px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.for h3{font-size:18px;font-weight:800}
+.for p{font-size:16px;line-height:1.5;margin-top:6px}
+.again{display:flex;justify-content:center;padding-block:34px 56px}
+.again a{font:800 18px/1 var(--f-display);text-decoration:none;background:var(--orange);color:#1C1814;border-radius:14px;padding:18px 26px}
+footer{border-top:1px solid var(--line);padding-block:22px calc(22px + env(safe-area-inset-bottom,0px));font-family:var(--f-display);font-size:13px;color:var(--muted);text-align:center}
+
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr;gap:28px;padding-block:32px 40px}
+  .grid{grid-template-columns:1fr}
+  .for{grid-template-columns:1fr}
+  .stat{grid-template-columns:1fr;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <p class="brand">estud<b>.</b>you apresenta</p>
+      <span class="eyebrow">Revista digital gratuita</span>
+      <h1>Do Boleto<br>ao <em>Burnout</em></h1>
+      <p class="hook">Por que o dinheiro que falta no fim do mês tira o sono, o foco e a saúde. E como sair desse ciclo.</p>
+      <div class="barcode" aria-hidden="true"><div class="bars" id="bars"></div></div>
+      <svg class="pulse" viewBox="0 0 520 54" preserveAspectRatio="none" aria-hidden="true"><path d="M0 32 H100 L112 32 L120 8 L131 48 L141 20 L149 32 H250 L260 32 L267 22 L275 40 L283 32 H380 L388 32 L393 27 L400 36 L405 32 H520"/></svg>
+      <div class="facts"><span>16 páginas</span><span>Infográficos e mapa mental</span><span>Feita para ler no celular</span></div>
+    </div>
+
+    <div class="card" id="acesso">
+      <div id="form-box">
+        <h2>Receba o acesso grátis</h2>
+        <p class="sub">Preencha os dados e a revista abre na hora.</p>
+        <form id="lead" novalidate>
+          <div class="field">
+            <label for="nome">Nome</label>
+            <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome" required>
+            <span class="err" id="nome-err"></span>
+          </div>
+          <div class="field">
+            <label for="whatsapp">WhatsApp</label>
+            <input id="whatsapp" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="(00) 00000-0000" required>
+            <span class="err" id="whatsapp-err"></span>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" required>
+            <span class="err" id="email-err"></span>
+          </div>
+          <div class="hp" aria-hidden="true"><label for="empresa_site">Não preencha</label><input id="empresa_site" name="empresa_site" type="text" tabindex="-1" autocomplete="off"></div>
+          <label class="consent"><input id="consent" type="checkbox" required> <span>Aceito receber conteúdos e novidades da estud.you por WhatsApp e e-mail e autorizo o uso dos meus dados para esse fim, de acordo com a LGPD.</span></label>
+          <span class="err" id="consent-err"></span>
+          <button class="go" type="submit" id="send"><span id="send-t">Quero ler agora</span></button>
+          <p class="form-err" id="form-err" role="alert" hidden></p>
+          <p class="privacy">Seus dados ficam protegidos e você pode pedir para sair da lista quando quiser.</p>
+        </form>
+      </div>
+      <div class="ok" id="ok-box" hidden role="status">
+        <span class="tick">✓</span>
+        <h2>Acesso liberado!</h2>
+        <p class="sub">Estamos abrindo a sua revista. Se ela não abrir sozinha, toque no botão.</p>
+        <a id="open" href="revista.html">Abrir a revista →</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="inside wrap">
+  <p class="kicker">O que você vai encontrar</p>
+  <h2>Do primeiro boleto atrasado ao esgotamento, passo a passo</h2>
+  <div class="grid">
+    <div class="item"><span class="n">01</span><h3>Como chegamos até aqui</h3><p>Uma linha do tempo de 2015 a 2026: crise, crédito fácil pelo celular e a promessa de dinheiro rápido.</p></div>
+    <div class="item"><span class="n">02</span><h3>O ciclo que prende</h3><p>Por que é tão difícil parar quando o dinheiro fácil vira perda, e o que o cérebro tem a ver com isso.</p></div>
+    <div class="item"><span class="n">03</span><h3>Os números das famílias</h3><p>O que as pesquisas mostram sobre consumo, contas atrasadas e nome negativado.</p></div>
+    <div class="item"><span class="n">04</span><h3>Da ansiedade ao burnout</h3><p>Como a dívida chega ao sono, à família e ao trabalho, até o esgotamento.</p></div>
+    <div class="item"><span class="n">05</span><h3>Dossiê atenção</h3><p>O que as telas fazem com o seu foco e práticas simples para recuperá-lo, com um desafio de 7 dias.</p></div>
+    <div class="item"><span class="n">06</span><h3>Guia para empresas</h3><p>Oito frentes para RH, SST e liderança protegerem a saúde e o foco das equipes.</p></div>
+  </div>
+
+  <div class="stat">
+    <b>47 s</b>
+    <p>é quanto o nosso foco dura, em média, numa tela. Em 2004 eram 2 minutos e meio.<small>Pesquisa de Gloria Mark, Universidade da Califórnia.</small></p>
+  </div>
+
+  <div class="for">
+    <div><h3>Para você</h3><p>Entenda o que está por trás do aperto no fim do mês e dê os primeiros passos para organizar o dinheiro e cuidar da cabeça.</p></div>
+    <div><h3>Para a sua empresa</h3><p>Leve para o RH e a liderança um plano claro para prevenir o estresse e proteger a produtividade.</p></div>
+  </div>
+</main>
+
+<div class="again wrap"><a href="#acesso">Quero receber o acesso</a></div>
+
+<footer class="wrap">Uma publicação estud.you · psicologia e finanças para quem trabalha</footer>
+
+<script>
+/* ============ CONFIGURAÇÃO ============ */
+var SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbwE8zNYnKSl88HYgluU24lMCem60H-EYcg_Cp8-e6Fgft1oZOBNWMqtu7M_ld1DhtfK/exec'; // termina em /exec
+var REVISTA_URL = 'revista.html';                   // endereço da revista
+/* ===================================== */
+
+(function(){
+  // código de barras decorativo
+  var w=[3,1,2,1,4,1,1,3,2,1,1,2,3,1,2,4,1,1,2,1,3,2,1,1,4,2,1,3,1,2,1,1,3,1,2,2,1,4,1,2,1,3,1,1,2,3,1,2],h='';
+  for(var i=0;i<w.length;i++){ h+= (i%2) ? '<i style="width:'+w[i]+'px;background:transparent"></i>' : '<i class="'+(i>w.length*.7?'o':'')+'" style="width:'+(w[i]*1.6)+'px"></i>'; }
+  document.getElementById('bars').innerHTML=h;
+
+  var form=document.getElementById('lead'), btn=document.getElementById('send'), btnT=document.getElementById('send-t');
+  var nome=document.getElementById('nome'), wpp=document.getElementById('whatsapp'), email=document.getElementById('email'), consent=document.getElementById('consent');
+  var formErr=document.getElementById('form-err');
+  var openLink=document.getElementById('open');
+  var target=REVISTA_URL+(REVISTA_URL.indexOf('?')>-1?'&':'?')+'acesso=1';
+  openLink.href=target;
+
+  // máscara de WhatsApp: (00) 00000-0000
+  wpp.addEventListener('input',function(){
+    var d=wpp.value.replace(/\D/g,'').slice(0,11), o='';
+    if(d.length>0) o='('+d.slice(0,2);
+    if(d.length>=3) o+=') '+d.slice(2, d.length>10?7:6);
+    if(d.length>=7) o+='-'+d.slice(d.length>10?7:6);
+    wpp.value=o;
+  });
+
+  function setErr(el,msg){
+    var e=document.getElementById(el.id+'-err'); if(e) e.textContent=msg||'';
+    if(el.type!=='checkbox') el.setAttribute('aria-invalid', msg?'true':'false');
+  }
+  function validate(){
+    var ok=true;
+    var n=nome.value.trim();
+    if(n.length<2){setErr(nome,'Digite o seu nome.');ok=false;} else setErr(nome,'');
+    var d=wpp.value.replace(/\D/g,'');
+    if(d.length<10||d.length>11){setErr(wpp,'Digite o WhatsApp com DDD.');ok=false;} else setErr(wpp,'');
+    var m=email.value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)){setErr(email,'Digite um e-mail válido.');ok=false;} else setErr(email,'');
+    if(!consent.checked){setErr(consent,'Marque a autorização para continuar.');ok=false;} else setErr(consent,'');
+    return ok;
+  }
+  [nome,wpp,email].forEach(function(el){el.addEventListener('blur',function(){ if(el.value) validate(); });});
+
+  function utm(k){ try{return new URLSearchParams(location.search).get(k)||'';}catch(e){return '';} }
+
+  function unlock(){
+    try{localStorage.setItem('dbab_acesso','1');}catch(e){}
+    document.getElementById('form-box').hidden=true;
+    document.getElementById('ok-box').hidden=false;
+    setTimeout(function(){ location.href=target; },1500);
+  }
+
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    formErr.hidden=true;
+    if(!validate()){ var f=form.querySelector('[aria-invalid="true"]')||consent; f.focus(); return; }
+    if(document.getElementById('empresa_site').value){ unlock(); return; } // robô: não grava
+    btn.disabled=true; btnT.textContent='Enviando'; btn.insertAdjacentHTML('afterbegin','<span class="spin" aria-hidden="true"></span>');
+
+    var data=new URLSearchParams({
+      nome:nome.value.trim(),
+      whatsapp:wpp.value.replace(/\D/g,''),
+      email:email.value.trim().toLowerCase(),
+      consentimento:'sim',
+      utm_source:utm('utm_source'), utm_medium:utm('utm_medium'), utm_campaign:utm('utm_campaign'),
+      utm_content:utm('utm_content'), pagina:location.href.split('?')[0]
+    });
+
+    if(SHEETS_URL.indexOf('/exec')===-1){ // ainda sem planilha configurada
+      console.warn('Configure SHEETS_URL para gravar os leads.');
+      unlock(); return;
+    }
+    var done=false;
+    var timer=setTimeout(function(){ if(!done){ done=true; unlock(); } },8000);
+    fetch(SHEETS_URL,{method:'POST',mode:'no-cors',body:data})
+      .then(function(){ if(!done){ done=true; clearTimeout(timer); unlock(); } })
+      .catch(function(){
+        if(done) return; done=true; clearTimeout(timer);
+        btn.disabled=false; btnT.textContent='Quero ler agora';
+        var s=btn.querySelector('.spin'); if(s) s.remove();
+        formErr.textContent='Não conseguimos enviar agora. Confira a sua conexão e tente de novo.';
+        formErr.hidden=false;
+      });
+  });
+})();
+</script>
+</body>
+</html>

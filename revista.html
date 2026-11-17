@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<script>
+// trava leve: libera quem veio pela landing page (?acesso=1) ou já se cadastrou neste aparelho
+(function(){
+  var ok=false;
+  try{ ok = localStorage.getItem('dbab_acesso')==='1'; }catch(e){}
+  if(/[?&]acesso=1/.test(location.search)){ ok=true; try{localStorage.setItem('dbab_acesso','1');}catch(e){} }
+  if(!ok){ location.replace('index.html'); }
+})();
+</script>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Do Boleto ao Burnout</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: revista vertical — cada "página" é uma seção numerada; coluna de leitura de ~680px, páginas de dados abrem até 1040px. */
+:root{
+  --paper:#FFFCF7; --paper-2:#FFF3E0; --ink:#1C1814; --muted:#6A6158; --line:#EADFCF;
+  --orange:#F59600; --orange-ink:#B86A00; --orange-soft:#FFEACB;
+  --blue:#3E4095; --blue-soft:#E9E9F8;
+  --green:#077A16; --green-soft:#E2F2E4;
+  --grafite:#2A2520; --on-dark:#FFF8EE;
+  --f-display:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --read:680px; --wide:1040px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#16130F; --paper-2:#211B13; --ink:#F2ECE3; --muted:#A99E90; --line:#332C23;
+  --orange:#FFA41F; --orange-ink:#FFB84D; --orange-soft:#3A2810;
+  --blue:#8F92EC; --blue-soft:#24254A;
+  --green:#47C25A; --green-soft:#14301A;
+  --grafite:#0C0A08; --on-dark:#FFF8EE; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#16130F; --paper-2:#211B13; --ink:#F2ECE3; --muted:#A99E90; --line:#332C23;
+  --orange:#FFA41F; --orange-ink:#FFB84D; --orange-soft:#3A2810;
+  --blue:#8F92EC; --blue-soft:#24254A;
+  --green:#47C25A; --green-soft:#14301A;
+  --grafite:#0C0A08; --on-dark:#FFF8EE; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(56px + env(safe-area-inset-top,0px))}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.62;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.08;letter-spacing:-.02em;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:6px}
+.mono{font-family:var(--f-mono)}
+.num{font-variant-numeric:tabular-nums}
+
+/* barra superior */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.topbar-in{max-width:var(--wide);margin:0 auto;height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:-.01em;color:var(--ink);text-decoration:none;white-space:nowrap}
+.brand span{color:var(--orange)}
+.top-r{display:flex;align-items:center;gap:10px;min-width:0}
+.pg{font-family:var(--f-mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.btn-idx{font-family:var(--f-display);font-weight:600;font-size:13px;color:var(--ink);text-decoration:none;border:1.5px solid var(--ink);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.progress{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:var(--orange);transition:width .15s linear}
+
+/* páginas */
+.page{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:56px 64px;border-bottom:1px solid var(--line)}
+.page-in{max-width:var(--read);margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.page.wide .page-in{max-width:var(--wide)}
+.folio{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--f-mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;border-top:2px solid var(--ink);padding-top:10px}
+.kicker{font-family:var(--f-display);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--orange-ink)}
+.page h2{font-size:clamp(32px,7vw,52px);font-weight:800}
+.lede{font-size:21px;line-height:1.5;color:var(--ink)}
+.lede::first-letter{font-family:var(--f-display);font-weight:800;float:left;font-size:64px;line-height:.82;padding:6px 10px 0 0;color:var(--orange)}
+.body p+p{margin-top:14px}
+.muted{color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-display);font-weight:600;font-size:13px;padding:5px 12px;border-radius:999px;background:var(--orange-soft);color:var(--ink)}
+.chip.b{background:var(--blue-soft)} .chip.g{background:var(--green-soft)}
+.pull{font-family:var(--f-display);font-weight:700;font-size:clamp(22px,5vw,30px);line-height:1.2;letter-spacing:-.01em;border-left:6px solid var(--orange);padding:4px 0 4px 18px}
+.note{font-size:15px;line-height:1.5;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+.box{background:var(--paper-2);border-radius:18px;padding:20px 22px}
+.box h3{font-size:20px;font-weight:700;margin-bottom:8px}
+.box.alert{background:var(--blue-soft)}
+
+/* CAPA */
+.cover{background:var(--grafite);color:var(--on-dark);border-bottom:0;padding-block:40px 48px;overflow:hidden;position:relative}
+.cover .page-in{max-width:var(--wide);gap:26px;position:relative;z-index:1}
+.cover .folio{border-color:var(--on-dark);color:#CFC6BA}
+.cover h1{font-size:clamp(54px,14vw,128px);font-weight:800;letter-spacing:-.045em;line-height:.9}
+.cover h1 em{font-style:normal;color:var(--orange)}
+.cover .sub{font-family:var(--f-body);font-size:22px;line-height:1.45;max-width:30ch;color:#EFE7DA}
+.barcode{display:flex;flex-direction:column;gap:8px;max-width:640px}
+.bars{height:64px;display:flex;align-items:stretch;gap:2px}
+.bars i{display:block;background:var(--on-dark);flex:0 0 auto}
+.bars i.o{background:var(--orange)}
+.linha{font-family:var(--f-mono);font-size:13px;letter-spacing:.06em;color:#CFC6BA;overflow-wrap:anywhere}
+.pulse{width:100%;max-width:640px;height:70px;display:block}
+.pulse path{fill:none;stroke:var(--orange);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.cover-meta{display:flex;flex-wrap:wrap;gap:12px 28px;font-family:var(--f-display)}
+.cover-meta div{display:flex;flex-direction:column}
+.cover-meta b{font-size:24px;font-weight:800;color:var(--orange)}
+.cover-meta span{font-size:13px;color:#CFC6BA;text-transform:uppercase;letter-spacing:.1em}
+.hosts{display:flex;flex-wrap:wrap;gap:10px 22px;font-family:var(--f-display);font-size:15px;color:#EFE7DA}
+.hosts b{color:var(--on-dark)}
+
+/* SUMÁRIO */
+.toc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.toc li a{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.toc .n{font-family:var(--f-display);font-weight:800;font-size:28px;color:var(--orange);line-height:1}
+.toc .t{font-family:var(--f-display);font-weight:700;font-size:18px;line-height:1.25;min-width:0}
+.toc .t small{display:block;font-family:var(--f-body);font-weight:400;font-size:15px;color:var(--muted);margin-top:2px}
+.toc .p{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+
+/* CONVERGÊNCIA */
+.converge{display:flex;flex-direction:column;align-items:center;gap:0}
+.pressures{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.pressure{background:var(--orange-soft);border-radius:14px;padding:14px 10px;text-align:center;font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.2}
+.pressure small{display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:4px;font-family:var(--f-display)}
+.brace{width:100%;height:56px;display:block}
+.brace path{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round}
+.cloud{background:var(--grafite);color:var(--on-dark);font-family:var(--f-display);font-weight:800;font-size:22px;padding:18px 28px;border-radius:60px 70px 56px 64px / 46px 40px 50px 44px;text-align:center;box-shadow:0 0 0 6px var(--orange-soft)}
+.cloud em{font-style:normal;color:var(--orange)}
+
+/* LINHA DO TEMPO */
+.timeline{list-style:none;margin:0;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:3px;background:var(--line);border-radius:2px}
+.tl{position:relative;padding:0 0 26px 40px}
+.tl::before{content:"";position:absolute;left:3px;top:6px;width:19px;height:19px;border-radius:50%;background:var(--paper);border:4px solid var(--orange)}
+.tl.b::before{border-color:var(--blue)} .tl.g::before{border-color:var(--green)} .tl.k::before{border-color:var(--ink)}
+.tl .yr{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1.1}
+.tl .what{font-family:var(--f-display);font-weight:600;font-size:16px;margin:2px 0 6px}
+.tl p{font-size:16px;line-height:1.55;color:var(--ink)}
+.tl .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-family:var(--f-display);font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:50%;border:3px solid var(--orange);display:inline-block}
+.legend i.b{border-color:var(--blue)} .legend i.g{border-color:var(--green)} .legend i.k{border-color:var(--ink)}
+
+/* FLUXO CRÉDITO */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.flow .st{font-family:var(--f-display);font-weight:700;font-size:15px;padding:10px 14px;border-radius:12px;background:var(--blue-soft)}
+.flow .st.hot{background:var(--blue);color:#fff}
+.flow .ar{font-family:var(--f-display);font-weight:800;color:var(--blue)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare > div{border:1.5px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.compare h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.compare p{font-size:15px;line-height:1.5}
+
+/* CICLO */
+.cycle-wrap{display:flex;justify-content:center}
+.cycle{width:100%;max-width:460px;height:auto;display:block}
+.cycle .node{fill:var(--paper-2);stroke:var(--orange);stroke-width:2.5}
+.cycle .node.hot{fill:var(--orange);stroke:var(--orange)}
+.cycle text{font-family:var(--f-display);font-weight:700;font-size:13px;fill:var(--ink)}
+.cycle text.on{fill:#1C1814}
+.cycle .arc{fill:none;stroke:var(--muted);stroke-width:2}
+.cycle .arrowhead{fill:var(--muted)}
+.cycle .core{fill:var(--grafite);stroke:var(--orange);stroke-width:2}
+.cycle .core-t{fill:var(--on-dark);font-size:16px;font-weight:800}
+.cycle .core-s{fill:var(--orange);font-size:12px;font-weight:600}
+.defs{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:640px){.defs{grid-template-columns:1fr 1fr}}
+.def{border-radius:16px;padding:18px;background:var(--orange-soft);min-width:0}
+.def.b{background:var(--blue-soft)}
+.def h4{font-size:17px;font-weight:800;margin-bottom:6px}
+.def p{font-size:16px;line-height:1.5}
+
+/* DADOS CNDL */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{border-radius:18px;padding:18px;background:var(--paper-2);display:flex;flex-direction:column;gap:6px;min-width:0}
+.stat b{font-family:var(--f-display);font-weight:800;font-size:clamp(40px,10vw,56px);line-height:1;letter-spacing:-.03em;color:var(--orange-ink)}
+.stat.b b{color:var(--blue)}
+.stat span{font-family:var(--f-display);font-size:14px;font-weight:600;line-height:1.3}
+.stat small{font-size:13px;color:var(--muted);font-family:var(--f-body)}
+.waffle-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.waffle-card{display:flex;flex-direction:column;gap:10px;min-width:0}
+.waffle{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-width:220px}
+.waffle i{aspect-ratio:1;border-radius:3px;background:var(--line);display:block}
+.waffle i.on{background:var(--orange)}
+.waffle.b i.on{background:var(--blue)}
+.waffle-card p{font-family:var(--f-display);font-size:14px;font-weight:600;line-height:1.3}
+.waffle-card p b{font-size:22px;font-weight:800}
+.bars-h{display:flex;flex-direction:column;gap:12px}
+.bh{display:grid;grid-template-columns:minmax(118px,30%) 1fr;gap:10px;align-items:center}
+.bh .l{font-family:var(--f-display);font-weight:600;font-size:13px;line-height:1.2}
+.bh .track{position:relative;height:26px;background:var(--line);border-radius:6px;overflow:hidden}
+.bh .fill{height:100%;background:var(--orange);border-radius:6px}
+.bh .v{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--ink)}
+.axis{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-left:calc(min(30%, 9999px) + 10px)}
+
+/* SAÚDE: cascata */
+.cascade{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.cascade li{display:flex;align-items:center;gap:12px;border-radius:14px;padding:12px 16px;font-family:var(--f-display);font-weight:700;font-size:17px;color:#fff}
+.cascade li small{font-family:var(--f-body);font-weight:400;font-size:14px;opacity:.92;display:block;line-height:1.35}
+.cascade li .i{flex:0 0 32px;height:32px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.cascade li > div{min-width:0}
+.cascade li:nth-child(1){background:#F59600;margin-left:0}
+.cascade li:nth-child(2){background:#D97A12;margin-left:4%}
+.cascade li:nth-child(3){background:#B35E28;margin-left:8%}
+.cascade li:nth-child(4){background:#7E4A4F;margin-left:12%}
+.cascade li:nth-child(5){background:#4F3F78;margin-left:16%}
+.cascade li:nth-child(6){background:#2A2520;margin-left:20%;box-shadow:0 0 0 3px var(--orange)}
+@media (max-width:480px){.cascade li{margin-left:0!important;font-size:16px}}
+
+/* OUTUBRO */
+.big2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.big2 .stat b{color:var(--green)}
+.basket{display:flex;flex-wrap:wrap;gap:8px}
+.grouped{display:flex;flex-direction:column;gap:14px}
+.gr{display:grid;grid-template-columns:minmax(110px,32%) 1fr;gap:10px;align-items:center}
+.gr .l{font-family:var(--f-display);font-weight:600;font-size:14px;line-height:1.2}
+.gr .pair{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gr .b1,.gr .b2{height:14px;border-radius:4px;position:relative}
+.gr .b1{background:var(--green)}
+.gr .b2{background:var(--blue);opacity:.85}
+.gr .pair span{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;gap:12px}
+.gr .pair span b{color:var(--ink);font-weight:600}
+.key{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--f-display);font-size:13px;color:var(--muted)}
+.key i{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.pix{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.pix .col{display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--f-display)}
+.pix .col .bar{width:64px;border-radius:8px 8px 0 0;background:var(--blue)}
+.pix .col b{font-size:22px;font-weight:800}
+.pix .col span{font-size:12px;color:var(--muted);text-align:center;max-width:110px;line-height:1.25}
+.caveats{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.caveats li{display:grid;grid-template-columns:22px 1fr;gap:10px;font-size:16px;line-height:1.5}
+.caveats li::before{content:"!";font-family:var(--f-display);font-weight:800;width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:2px}
+
+/* PREVENÇÃO */
+.prev{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:720px){.prev{grid-template-columns:1fr 1fr}}
+.prev .col{border-radius:18px;padding:20px;min-width:0}
+.prev .col.f{background:var(--orange-soft)} .prev .col.m{background:var(--blue-soft)}
+.prev .col.e{background:var(--green-soft)}
+@media (min-width:720px){.prev .col.e{grid-column:1 / -1}}
+.prev h3{font-size:20px;font-weight:800;margin-bottom:4px}
+.prev .who{font-family:var(--f-display);font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px}
+.prev ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:16px;line-height:1.45}
+.cta{background:var(--grafite);color:var(--on-dark);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.cta h3{font-size:22px;font-weight:800;color:var(--on-dark)}
+.cta p{font-size:16px;line-height:1.5;color:#EFE7DA}
+.cta .tag{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;background:var(--orange);color:#1C1814;border-radius:999px;padding:5px 12px}
+.help{font-size:15px;color:var(--muted)}
+
+/* MAPA MENTAL */
+.mm-radial{display:none}
+.mm-radial svg{width:100%;height:auto;display:block}
+.mm-radial .lnk{fill:none;stroke-width:3}
+.mm-radial .bx{stroke-width:2.5}
+.mm-radial .tt{font-family:var(--f-display);font-weight:800;font-size:20px;fill:var(--ink)}
+.mm-radial .lf{font-family:var(--f-body);font-size:16px;fill:var(--ink)}
+.mm-radial .ctr{fill:var(--grafite)}
+.mm-radial .ctr-t{font-family:var(--f-display);font-weight:800;font-size:24px;fill:var(--on-dark)}
+.mm-radial .ctr-s{font-family:var(--f-display);font-weight:600;font-size:14px;fill:var(--orange)}
+.c-o{stroke:var(--orange)} .c-b{stroke:var(--blue)} .c-k{stroke:var(--ink)} .c-g{stroke:var(--green)}
+.f-o{fill:var(--orange-soft)} .f-b{fill:var(--blue-soft)} .f-k{fill:var(--paper-2)} .f-g{fill:var(--green-soft)}
+.mm-tree{display:flex;flex-direction:column;gap:0}
+.mm-root{align-self:flex-start;background:var(--grafite);color:var(--on-dark);font-family:var(--f-display);font-weight:800;font-size:20px;padding:12px 20px;border-radius:999px}
+.mm-root em{font-style:normal;color:var(--orange)}
+.mm-branches{list-style:none;margin:0 0 0 22px;padding:12px 0 0 0;border-left:3px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.mm-b{position:relative;padding-left:22px}
+.mm-b::before{content:"";position:absolute;left:0;top:22px;width:18px;height:3px;background:var(--line)}
+.mm-b .card{border-radius:16px;padding:14px 16px;border:2px solid var(--orange);background:var(--orange-soft)}
+.mm-b.b .card{border-color:var(--blue);background:var(--blue-soft)}
+.mm-b.k .card{border-color:var(--ink);background:var(--paper-2)}
+.mm-b.g .card{border-color:var(--green);background:var(--green-soft)}
+.mm-b h4{font-size:17px;font-weight:800;margin-bottom:8px}
+.mm-b .leaves{display:flex;flex-wrap:wrap;gap:6px}
+.mm-b .leaves span{font-family:var(--f-body);font-size:14px;background:var(--paper);border-radius:999px;padding:3px 10px}
+@media (min-width:860px){.mm-radial{display:block}.mm-tree{display:none}}
+
+
+/* DOSSIÊ ATENÇÃO */
+.pareto{border:2px solid var(--ink);border-radius:20px;padding:20px 22px 18px;position:relative;background:var(--paper)}
+.pareto .p-tag{position:absolute;top:-13px;left:18px;background:var(--orange);color:#1C1814;font-family:var(--f-display);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;border-radius:999px}
+.pareto ol{margin:6px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:17px;line-height:1.5}
+.pareto li::marker{font-family:var(--f-display);font-weight:800;color:var(--orange-ink)}
+.span-chart{display:flex;flex-direction:column;gap:12px}
+.sc{display:grid;grid-template-columns:56px 1fr 84px;gap:10px;align-items:center}
+.sc .l{font-family:var(--f-display);font-weight:700;font-size:14px}
+.sc .track{height:26px;background:var(--line);border-radius:6px;overflow:hidden}
+.sc .fill{height:100%;background:var(--blue);border-radius:6px}
+.sc .fill.hot{background:var(--orange)}
+.sc .v{font-family:var(--f-mono);font-size:13px;font-weight:600;text-align:right}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.area{border:1.5px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.area .a-ic{display:inline-flex;width:34px;height:34px;border-radius:10px;align-items:center;justify-content:center;background:var(--orange-soft);color:var(--orange-ink);font-size:18px;font-weight:700;margin-bottom:8px}
+.area h4{font-size:17px;font-weight:800;margin-bottom:4px}
+.area p{font-size:15px;line-height:1.5}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mode{border-radius:18px;padding:18px;min-width:0}
+.mode.spend{background:var(--orange-soft)} .mode.fill{background:var(--green-soft)}
+.mode h4{font-size:18px;font-weight:800}
+.mode .m-sub{font-family:var(--f-display);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2px 0 8px}
+.mode p{font-size:15px;line-height:1.5}
+.batt{display:flex;gap:3px;width:78px;height:26px;border:2.5px solid var(--ink);border-radius:6px;padding:3px;margin-bottom:12px;position:relative}
+.batt::after{content:"";position:absolute;right:-7px;top:6px;width:4px;height:9px;background:var(--ink);border-radius:0 2px 2px 0}
+.batt i{flex:1;border-radius:2px;background:var(--green)}
+.mode.spend .batt i{background:var(--orange)}
+.mode .batt i.off{background:transparent}
+.switch{display:flex;gap:3px;height:44px;border-radius:10px;overflow:hidden}
+.sw{display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:12px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 4px}
+.sw.task{background:var(--blue);color:#fff}
+.sw.ping{background:var(--orange);color:#1C1814}
+.sw.lost{background:repeating-linear-gradient(135deg,var(--line) 0 6px,transparent 6px 12px);color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two > *{min-width:0}
+.day .d-bar{position:relative;height:42px;border-radius:10px;background:var(--line);overflow:hidden}
+.day .z{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.day .z.pk{background:var(--orange);color:#1C1814}
+.day .d-axis{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:6px}
+.flowc{width:100%;max-width:340px;height:auto;display:block}
+.flowc .fl-band{fill:var(--green-soft);stroke:var(--green);stroke-width:2}
+.flowc .fl-ax{stroke:var(--ink);stroke-width:2}
+.flowc .fl-t{font-family:var(--f-display);font-weight:700;font-size:15px;fill:var(--muted)}
+.flowc .fl-t.hot{fill:var(--green);font-weight:800;font-size:17px}
+.flowc .fl-a{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.box.learn{background:var(--blue-soft);display:flex;flex-direction:column;gap:12px}
+.box.learn p{font-size:16px;line-height:1.55}
+.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kinds div{background:var(--paper);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kinds b{font-family:var(--f-display);font-size:15px;font-weight:800;color:var(--blue)}
+.kinds span{font-size:14px;line-height:1.35;color:var(--muted)}
+.sec-h{font-size:22px;font-weight:800;margin-top:6px}
+.practices{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.pr{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;border-top:2px solid var(--ink);padding-top:12px;min-width:0}
+.pr > div{min-width:0}
+.pr .pn{font-family:var(--f-display);font-weight:800;font-size:22px;color:var(--orange-ink);line-height:1}
+.practices.co .pr{border-top-color:var(--green)}
+.practices.co .pn{color:var(--green)}
+.pr h4{font-size:16px;font-weight:800;margin-bottom:3px}
+.pr p{font-size:15px;line-height:1.48}
+.box.challenge{background:var(--grafite);color:var(--on-dark)}
+.box.challenge h3{color:var(--on-dark)}
+.box.challenge .muted{color:#CFC6BA}
+.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,248,238,.14);font-family:var(--f-display);font-size:15px;font-weight:500;line-height:1.35;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:#F59600;flex:0 0 auto;margin-top:1px}
+.check input:checked + *{opacity:.6}
+.done{font-family:var(--f-display);font-weight:700;color:#F59600;margin-top:10px}
+@media (max-width:560px){
+  .modes,.two,.kinds{grid-template-columns:1fr}
+  .sc{grid-template-columns:48px 1fr 74px}
+  .sw{font-size:10px}
+}
+
+.box.alert .stat b{font-size:clamp(30px,8vw,48px)}
+
+/* PARA EMPRESAS */
+.prev a.goto{text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:6px;border:2px solid var(--green)}
+.prev a.goto p{font-size:16px;line-height:1.45}
+.goto-l{font-family:var(--f-display);font-weight:800;font-size:15px;color:var(--green)}
+.fronts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fronts a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--f-display);font-weight:600;font-size:14px;line-height:1.2;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.fronts a b{flex:0 0 28px;height:28px;border-radius:50%;background:var(--grafite);color:var(--on-dark);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.grp{font-family:var(--f-display);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-top:10px}
+.fr-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fr{position:relative;border:1.5px solid var(--line);border-radius:20px;padding:22px 20px 20px;display:flex;flex-direction:column;gap:10px;min-width:0;background:var(--paper)}
+.fr .fr-n{position:absolute;top:-14px;left:18px;width:30px;height:30px;border-radius:50%;background:var(--orange);color:#1C1814;font-family:var(--f-display);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
+.fr h4{font-size:19px;font-weight:800;line-height:1.2}
+.fr > p{font-size:16px;line-height:1.5}
+.fr ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;font-size:15px;line-height:1.45}
+.fr-tip{font-size:14px!important;color:var(--muted);border-left:3px solid var(--orange);padding-left:10px}
+.risks{display:flex;flex-wrap:wrap;gap:8px}
+.risks span{font-family:var(--f-display);font-weight:700;font-size:13px;padding:6px 12px;border-radius:999px;background:var(--blue-soft);color:var(--ink)}
+.sol{margin-top:auto;border-radius:16px;padding:16px;background:var(--grafite);color:var(--on-dark);display:flex;flex-direction:column;gap:6px}
+.sol .sol-tag{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:var(--orange);color:#1C1814;border-radius:999px;padding:3px 10px}
+.sol h5{font-family:var(--f-display);font-weight:800;font-size:20px;margin:0;color:var(--on-dark);letter-spacing:-.01em}
+.sol p{font-size:15px;line-height:1.5;color:#EFE7DA}
+.sol .sol-link{align-self:flex-start;font-family:var(--f-display);font-weight:700;font-size:14px;color:#1C1814;background:#FFF8EE;border-radius:999px;padding:6px 14px;text-decoration:none;margin-top:4px}
+.sol.big h5{font-size:24px}
+.sol.big p{font-size:16px}
+@media (max-width:760px){.fronts{grid-template-columns:1fr 1fr}.fr-grid{grid-template-columns:1fr}}
+
+
+/* PRÓXIMOS PASSOS */
+.cta-hero{display:flex;flex-direction:column;gap:10px;text-decoration:none;background:var(--orange);color:#1C1814;border-radius:24px;padding:26px 24px}
+.cta-hero .ch-tag{font-family:var(--f-display);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.cta-hero .ch-title{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,8vw,52px);line-height:1;letter-spacing:-.03em}
+.cta-hero .ch-text{font-size:18px;line-height:1.5;max-width:60ch}
+.cta-hero .ch-btn{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:16px;background:#1C1814;color:#FFF8EE;border-radius:999px;padding:12px 22px;margin-top:4px}
+.cta-hero:hover .ch-btn,.cta-card:hover .cc-btn{transform:translateX(3px)}
+.ch-btn,.cc-btn{transition:transform .15s ease}
+@media (prefers-reduced-motion: reduce){.ch-btn,.cc-btn{transition:none}}
+.cta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cta-card{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);border:2px solid var(--ink);border-radius:20px;padding:18px;min-width:0}
+.cc-name{font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1.1}
+.cc-what{font-family:var(--f-display);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--orange-ink)}
+.cc-text{font-size:15px;line-height:1.5;flex:1}
+.cc-btn{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:14px;background:var(--grafite);color:var(--on-dark);border-radius:999px;padding:8px 16px;margin-top:6px}
+.follow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.follow a{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--ink);background:var(--paper-2);border-radius:14px;padding:14px 16px;min-width:0}
+.follow b{font-family:var(--f-display);font-weight:800;font-size:17px;overflow-wrap:anywhere}
+.follow span{font-size:14px;color:var(--muted)}
+
+/* FONTES */
+.sources{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45}
+.sources li{padding-left:16px;border-left:3px solid var(--line)}
+.colophon{font-family:var(--f-display);font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+
+@media (max-width:420px){
+  body{font-size:17px}
+  .lede{font-size:19px}
+  .pressures{grid-template-columns:1fr}
+  .compare{grid-template-columns:1fr}
+  .waffle-row{grid-template-columns:1fr 1fr;gap:12px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar" aria-label="Navegação da revista">
+  <div class="topbar-in">
+    <a class="brand" href="#capa">Do Boleto <span>ao</span> Burnout</a>
+    <div class="top-r">
+      <span class="pg" id="pgnum">pág. 01/17</span>
+      <a class="btn-idx" href="#sumario">Sumário</a>
+    </div>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main>
+
+<!-- 01 CAPA -->
+<section class="page cover" id="capa" data-page="01">
+  <div class="page-in">
+    <div class="folio"><span>estud.you · Revista da live</span><span>17 · 11 · 2026</span></div>
+    <h1>Do Boleto<br>ao <em>Burnout</em></h1>
+    <p class="sub">Trabalhador endividado, riscos psicossociais e o papel da empresa.</p>
+    <div class="barcode" aria-hidden="true">
+      <div class="bars" id="bars"></div>
+      <div class="linha">23790.17112 02619.300004 40000.000006 1 00000000187,00</div>
+    </div>
+    <svg class="pulse" viewBox="0 0 640 70" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 40 H120 L135 40 L145 12 L158 62 L170 26 L180 40 H300 L312 40 L320 28 L330 50 L340 40 H460 L470 40 L476 34 L484 44 L490 40 H640"/>
+    </svg>
+    <div class="cover-meta">
+      <div><b>17/11</b><span>terça-feira</span></div>
+      <div><b>19h30</b><span>ao vivo</span></div>
+      <div><b>@estudyou.cursos</b><span>no Instagram</span></div>
+    </div>
+    <div class="hosts">
+      <span><b>Romilto Lopes</b>, psicólogo</span>
+      <span><b>Jaymara Kalb</b>, economista</span>
+    </div>
+  </div>
+</section>
+
+<!-- 02 SUMÁRIO -->
+<section class="page" id="sumario" data-page="02">
+  <div class="page-in">
+    <div class="folio"><span>Sumário</span><span>pág. 02</span></div>
+    <h2>Nesta edição</h2>
+    <p class="muted">Seis capítulos que seguem o caminho do dinheiro até a saúde: da crise econômica ao esgotamento, e de volta à prevenção.</p>
+    <ol class="toc">
+      <li><a href="#contexto"><span class="n">1</span><span class="t">Contexto econômico<small>A crise de 2015–2016 e a perda do poder de compra</small></span><span class="p">03</span></a></li>
+      <li><a href="#linha-do-tempo"><span class="n">·</span><span class="t">Linha do tempo<small>De 2015 a 2026, ano a ano</small></span><span class="p">04</span></a></li>
+      <li><a href="#comportamento"><span class="n">2</span><span class="t">Mudança no comportamento financeiro<small>Quando o crédito vira sobrevivência</small></span><span class="p">05</span></a></li>
+      <li><a href="#ciclo"><span class="n">3</span><span class="t">A expansão das apostas<small>Dinheiro rápido, dopamina e o ciclo do vício</small></span><span class="p">06</span></a></li>
+      <li><a href="#endividamento"><span class="n">4</span><span class="t">O agravamento do endividamento<small>Financeiro e familiar, em números</small></span><span class="p">07</span></a></li>
+      <li><a href="#saude"><span class="n">5</span><span class="t">Impactos na saúde emocional<small>Da ansiedade ao burnout</small></span><span class="p">08</span></a></li>
+      <li><a href="#outubro"><span class="n">·</span><span class="t">Em pauta: outubro de 2026<small>Sem apostas, mais comida no carrinho?</small></span><span class="p">09</span></a></li>
+      <li><a href="#telas"><span class="n">·</span><span class="t">Dossiê atenção 1: o que as telas fazem<small>Foco, memória, emoções e produtividade</small></span><span class="p">10</span></a></li>
+      <li><a href="#atencao"><span class="n">·</span><span class="t">Dossiê atenção 2: como a atenção funciona<small>Um filtro que cansa e que se aprende</small></span><span class="p">11</span></a></li>
+      <li><a href="#recuperar"><span class="n">·</span><span class="t">Dossiê atenção 3: como recuperar a atenção<small>Práticas para você e para a empresa</small></span><span class="p">12</span></a></li>
+      <li><a href="#prevencao"><span class="n">6</span><span class="t">Caminhos para a prevenção<small>Educação financeira e saúde emocional</small></span><span class="p">13</span></a></li>
+      <li><a href="#empresas"><span class="n">★</span><span class="t">Seção especial: para empresas<small>As 8 frentes de RH, SST e liderança</small></span><span class="p">14</span></a></li>
+      <li><a href="#mapa"><span class="n">·</span><span class="t">Mapa mental<small>A live inteira em uma página</small></span><span class="p">15</span></a></li>
+      <li><a href="#proximos-passos"><span class="n">·</span><span class="t">Próximos passos<small>Cursos, soluções e perfis para seguir</small></span><span class="p">16</span></a></li>
+      <li><a href="#fontes"><span class="n">·</span><span class="t">Fontes e créditos</span><span class="p">17</span></a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 03 CONTEXTO -->
+<section class="page" id="contexto" data-page="03">
+  <div class="page-in">
+    <div class="folio"><span>Capítulo 1</span><span>pág. 03</span></div>
+    <p class="kicker">Contexto econômico · 2015–2016</p>
+    <h2>A crise e a perda do poder de compra</h2>
+    <p class="lede">Entre 2015 e 2016 o Brasil viveu uma recessão profunda. A inflação chegou perto de 10% ao ano e os juros subiram muito. O salário passou a comprar menos, e o crédito ficou mais caro justamente quando as famílias mais precisavam dele.</p>
+    <div class="converge" role="img" aria-label="Renda pressionada, custo de vida elevado e crédito caro convergem para o ciclo Do Boleto ao Burnout">
+      <div class="pressures">
+        <div class="pressure">Renda pressionada<small>salário não acompanha</small></div>
+        <div class="pressure">Custo de vida elevado<small>inflação perto de 10%</small></div>
+        <div class="pressure">Crédito caro<small>juros altos</small></div>
+      </div>
+      <svg class="brace" viewBox="0 0 600 56" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M20 4 Q20 26 150 26 L270 26 Q300 26 300 52 Q300 26 330 26 L450 26 Q580 26 580 4"/>
+      </svg>
+      <div class="cloud">Do Boleto ao <em>Burnout</em></div>
+    </div>
+    <div class="body">
+      <p>Essas três pressões não somem quando a crise passa. Elas deixam uma marca no orçamento: menos folga, mais parcelas e a sensação de que o mês sempre termina antes do salário.</p>
+      <p>É nesse terreno que surgem, nos anos seguintes, o crédito fácil pelo celular e a promessa de dinheiro rápido.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 04 LINHA DO TEMPO -->
+<section class="page" id="linha-do-tempo" data-page="04">
+  <div class="page-in">
+    <div class="folio"><span>Linha do tempo</span><span>pág. 04</span></div>
+    <p class="kicker">2015 → 2026</p>
+    <h2>Dez anos em sete paradas</h2>
+    <div class="legend" aria-hidden="true">
+      <span><i></i>economia</span><span><i class="b"></i>crédito e apostas</span><span><i class="k"></i>saúde e família</span><span><i class="g"></i>reação</span>
+    </div>
+    <ol class="timeline">
+      <li class="tl">
+        <div class="yr num">2015–2016</div>
+        <div class="what">Crise econômica</div>
+        <p>Recessão, inflação perto de 10% e juros altos. O poder de compra cai.</p>
+      </li>
+      <li class="tl b">
+        <div class="yr num">2018</div>
+        <div class="what">Chegam as apostas on-line e os bancos digitais</div>
+        <p>As apostas de quota fixa são autorizadas por lei. Ao mesmo tempo, fintechs e bancos digitais tornam o crédito fácil, rápido e a um toque de distância.</p>
+      </li>
+      <li class="tl">
+        <div class="yr num">2020</div>
+        <div class="what">Pandemia</div>
+        <p>"Fique em casa": a renda cai, a inflação volta e o celular vira a principal janela para o mundo e para o dinheiro.</p>
+      </li>
+      <li class="tl b">
+        <div class="yr num">2023</div>
+        <div class="what">Os jogos on-line se espalham</div>
+        <p>Dinheiro rápido + dopamina + vieses de comportamento. A <b>falácia do jogador</b> faz parecer que o prêmio está "chegando".</p>
+      </li>
+      <li class="tl k">
+        <div class="yr num">2024–2025</div>
+        <div class="what">O pico do endividamento</div>
+        <p>Pesquisa CNDL/SPC Brasil de 2025: <b>41%</b> dos apostadores abriram mão de consumo para apostar e <b>29%</b> já tiveram o nome negativado por causa das apostas.</p>
+      </li>
+      <li class="tl g">
+        <div class="yr num">25/09/2026</div>
+        <div class="what">Proibição das apostas on-line</div>
+        <p>A Medida Provisória 1.394/2026 proíbe as bets no país.</p>
+      </li>
+      <li class="tl g">
+        <div class="yr num">Out/2026</div>
+        <div class="what">O carrinho do mercado reage</div>
+        <p>A Abras registra alta de <b>6,5%</b> e <b>6,3%</b> nas vendas do varejo alimentar em duas semanas de outubro. Veja a página 09.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 05 COMPORTAMENTO -->
+<section class="page" id="comportamento" data-page="05">
+  <div class="page-in">
+    <div class="folio"><span>Capítulo 2</span><span>pág. 05</span></div>
+    <p class="kicker">Comportamento financeiro · 2016–2018</p>
+    <h2>Quando o crédito vira sobrevivência</h2>
+    <p class="lede">Depois da crise, o crédito deixou de ser ferramenta para planos grandes e virou forma de fechar o mês. Cartão, cheque especial e empréstimo pelo aplicativo passaram a pagar o mercado, a luz e o aluguel.</p>
+    <div class="flow" role="img" aria-label="Salário não fecha o mês, crédito cobre, parcela soma, novo crédito para pagar o anterior">
+      <span class="st">Salário não fecha</span><span class="ar">→</span>
+      <span class="st">Crédito cobre</span><span class="ar">→</span>
+      <span class="st">Parcela soma</span><span class="ar">→</span>
+      <span class="st hot">Novo crédito para pagar o anterior</span>
+    </div>
+    <div class="compare">
+      <div>
+        <h4>Antes</h4>
+        <p>Crédito exigia agência, papelada e tempo. A demora funcionava como um freio.</p>
+      </div>
+      <div>
+        <h4>Com o digital</h4>
+        <p>Fintechs e bancos digitais liberam limite em minutos, pelo celular. O freio some.</p>
+      </div>
+    </div>
+    <p class="pull">O mesmo celular que libera o crédito em minutos é o que, poucos anos depois, abre a porta para as apostas.</p>
+  </div>
+</section>
+
+<!-- 06 CICLO -->
+<section class="page" id="ciclo" data-page="06">
+  <div class="page-in">
+    <div class="folio"><span>Capítulo 3</span><span>pág. 06</span></div>
+    <p class="kicker">A expansão das apostas</p>
+    <h2>O ciclo do dinheiro rápido</h2>
+    <p class="lede">A aposta promete uma saída rápida para um aperto real. O primeiro ganho, mesmo pequeno, ativa o sistema de recompensa do cérebro. A perda que vem depois não encerra o jogo: ela vira motivo para tentar de novo.</p>
+    <div class="cycle-wrap">
+      <svg class="cycle" viewBox="0 0 400 400" role="img" aria-label="Ciclo: dinheiro rápido, expectativa de ganho, perda, tentativa de recuperar, nova aposta, e de volta ao início. No centro, dopamina igual a vício.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0 0 L10 5 L0 10 z"/></marker>
+        </defs>
+        <circle class="core" cx="200" cy="200" r="64"/>
+        <text class="core-t" x="200" y="198" text-anchor="middle">Dopamina</text>
+        <text class="core-s" x="200" y="219" text-anchor="middle">= vício</text>
+        <path class="arc" d="M267.9 77.6 A140 140 0 0 1 316.7 122.7" marker-end="url(#ah)"/>
+        <path class="arc" d="M339.7 190.2 A140 140 0 0 1 315.4 279.3" marker-end="url(#ah)"/>
+        <path class="arc" d="M214.6 339.2 A140 140 0 0 1 185.4 339.2" marker-end="url(#ah)"/>
+        <path class="arc" d="M84.6 279.3 A140 140 0 0 1 60.3 190.2" marker-end="url(#ah)"/>
+        <path class="arc" d="M83.3 122.7 A140 140 0 0 1 132.1 77.6" marker-end="url(#ah)"/>
+        <rect class="node hot" x="141.0" y="35.0" width="118" height="50" rx="25"/>
+        <text class="on" x="200.0" y="65.0" text-anchor="middle">Dinheiro rápido</text>
+        <rect class="node" x="274.1" y="131.7" width="118" height="50" rx="25"/>
+        <text x="333.1" y="153.7" text-anchor="middle">Expectativa</text>
+        <text x="333.1" y="170.7" text-anchor="middle">de ganho</text>
+        <rect class="node" x="223.3" y="288.3" width="118" height="50" rx="25"/>
+        <text x="282.3" y="318.3" text-anchor="middle">Perda</text>
+        <rect class="node" x="58.7" y="288.3" width="118" height="50" rx="25"/>
+        <text x="117.7" y="310.3" text-anchor="middle">Tentativa de</text>
+        <text x="117.7" y="327.3" text-anchor="middle">recuperar</text>
+        <rect class="node" x="7.9" y="131.7" width="118" height="50" rx="25"/>
+        <text x="66.9" y="161.7" text-anchor="middle">Nova aposta</text>
+      </svg>
+    </div>
+    <div class="defs">
+      <div class="def">
+        <h4>Dopamina</h4>
+        <p>É o neurotransmissor ligado à expectativa de recompensa. Na aposta, ela dispara mais com a chance de ganhar do que com o prêmio em si. Por isso a vontade de jogar de novo é tão forte.</p>
+      </div>
+      <div class="def b">
+        <h4>Falácia do jogador</h4>
+        <p>É a crença de que, depois de várias perdas, a vitória "tem que vir". Cada aposta é independente da anterior: perder dez vezes não aumenta a chance de ganhar na décima primeira.</p>
+      </div>
+    </div>
+    <p class="note">Outros vieses que alimentam o ciclo: ilusão de controle ("eu entendo de futebol"), quase-acerto ("faltou pouco") e custo afundado ("já perdi tanto que agora preciso recuperar").</p>
+  </div>
+</section>
+
+<!-- 07 ENDIVIDAMENTO -->
+<section class="page" id="endividamento" data-page="07">
+  <div class="page-in">
+    <div class="folio"><span>Capítulo 4</span><span>pág. 07</span></div>
+    <p class="kicker">Endividamento financeiro × familiar</p>
+    <h2>A conta chega para a casa inteira</h2>
+    <p class="lede">A dívida da aposta não fica só no extrato de quem joga. Ela tira comida da mesa, atrasa contas da família e corrói a confiança entre as pessoas da casa.</p>
+    <div class="waffle-row">
+      <div class="waffle-card">
+        <div class="waffle" data-on="41" aria-hidden="true"></div>
+        <p><b>41%</b><br>abriram mão de consumo para apostar</p>
+      </div>
+      <div class="waffle-card">
+        <div class="waffle b" data-on="29" aria-hidden="true"></div>
+        <p><b>29%</b><br>já tiveram o nome negativado por causa das apostas</p>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b class="num">17%</b><span>deixaram contas sem pagar para apostar</span></div>
+      <div class="stat b"><b class="num">37%</b><span>tentaram parar ou diminuir e não conseguiram</span></div>
+      <div class="stat"><b class="num">R$ 187</b><span>gasto médio por mês com apostas</span><small>R$ 255 nas classes A e B</small></div>
+      <div class="stat b"><b class="num">76%</b><span>das apostas pagas via Pix</span></div>
+    </div>
+    <div class="box">
+      <h3>O que foi cortado para apostar</h3>
+      <div class="bars-h" role="img" aria-label="Itens cortados: restaurantes 15%, internet 12%, compras de supermercado 12%, passeios em família 10%">
+        <div class="bh"><span class="l">Restaurantes</span><div class="track"><div class="fill" style="width:75%"></div><span class="v">15%</span></div></div>
+        <div class="bh"><span class="l">Internet</span><div class="track"><div class="fill" style="width:60%"></div><span class="v">12%</span></div></div>
+        <div class="bh"><span class="l">Supermercado</span><div class="track"><div class="fill" style="width:60%"></div><span class="v">12%</span></div></div>
+        <div class="bh"><span class="l">Passeios em família</span><div class="track"><div class="fill" style="width:50%"></div><span class="v">10%</span></div></div>
+      </div>
+      <p class="note" style="margin-top:12px">Escala de 0% a 20% dos apostadores. Fonte: pesquisa CNDL/SPC Brasil, divulgada em novembro de 2025.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 08 SAÚDE -->
+<section class="page" id="saude" data-page="08">
+  <div class="page-in">
+    <div class="folio"><span>Capítulo 5</span><span>pág. 08</span></div>
+    <p class="kicker">Saúde emocional</p>
+    <h2>Da ansiedade ao burnout</h2>
+    <p class="lede">A preocupação com dinheiro não desliga no fim do expediente. Ela acompanha a pessoa para casa, invade o sono e volta com ela para o trabalho no dia seguinte, mais cansada.</p>
+    <ol class="cascade" aria-label="Cascata de impactos">
+      <li><span class="i">1</span><div>Ansiedade<small>a cabeça não para de fazer contas</small></div></li>
+      <li><span class="i">2</span><div>Insônia<small>a noite vira hora de preocupação</small></div></li>
+      <li><span class="i">3</span><div>Exaustão<small>o corpo cobra o que a mente não descansou</small></div></li>
+      <li><span class="i">4</span><div>Conflitos familiares<small>segredos, cobranças e desconfiança</small></div></li>
+      <li><span class="i">5</span><div>Queda de produtividade<small>erros, distração e afastamentos</small></div></li>
+      <li><span class="i">6</span><div>Burnout<small>esgotamento físico e mental</small></div></li>
+    </ol>
+    <div class="box alert">
+      <h3>Por que isso é assunto da empresa</h3>
+      <p>A causa pode estar fora do trabalho, mas o efeito aparece dentro dele: estresse, conflitos, erros e afastamentos. Com a NR-01, a gestão de riscos psicossociais passa a olhar para o que adoece as pessoas no ambiente de trabalho, e o acesso a apostas e golpes durante o expediente entra nessa conversa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 09 OUTUBRO -->
+<section class="page wide" id="outubro" data-page="09">
+  <div class="page-in">
+    <div class="folio"><span>Em pauta</span><span>pág. 09</span></div>
+    <p class="kicker">Outubro de 2026 · dados da Abras</p>
+    <h2>Sem apostas, mais comida no carrinho?</h2>
+    <p class="lede">Depois da proibição das apostas on-line, a Associação Brasileira de Supermercados (Abras) registrou um crescimento fora do comum nas vendas de alimentos, puxado pela cesta básica.</p>
+    <div class="big2">
+      <div class="stat"><b class="num">+6,5%</b><span>semana de 5 a 11 de outubro</span><small>varejo alimentar, comparado à mesma semana de 2025</small></div>
+      <div class="stat"><b class="num">+6,3%</b><span>semana de 12 a 18 de outubro</span><small>mesma comparação</small></div>
+    </div>
+    <div class="basket"><span class="chip g">Arroz</span><span class="chip g">Óleo</span><span class="chip g">Macarrão</span><span class="chip g">Café</span><span class="chip">em todos os canais: supermercados, atacarejos e mercearias</span></div>
+
+    <div class="box">
+      <h3>Alta por região</h3>
+      <div class="key"><span><i style="background:var(--green)"></i>5 a 11/10</span><span><i style="background:var(--blue)"></i>12 a 18/10</span></div>
+      <div class="grouped" id="regions" role="img" aria-label="Alta por região nas duas semanas de outubro"></div>
+      <p class="note" style="margin-top:12px">Escala de 0% a 12%. Fonte: Abras, divulgado pela Agência Brasil em 29/10/2026.</p>
+    </div>
+
+    <div class="compare">
+      <div>
+        <h4>Pix em queda</h4>
+        <div class="pix" role="img" aria-label="Queda nas transações via Pix: 10% logo após a medida, depois 7%">
+          <div class="col"><div class="bar" style="height:100px"></div><b>−10%</b><span>logo após a proibição</span></div>
+          <div class="col"><div class="bar" style="height:70px;opacity:.7"></div><b>−7%</b><span>patamar depois</span></div>
+        </div>
+        <p class="note" style="margin-top:10px">Dados do Banco Central citados pela Abras.</p>
+      </div>
+      <div>
+        <h4>A tese da Abras</h4>
+        <p>O dinheiro que ia para as apostas voltou para o orçamento da família, principalmente nas classes C, D e E, que gastam uma parte maior da renda com comida.</p>
+        <p class="note" style="margin-top:10px">Antes da proibição, uma estimativa do Comsefaz falava em perdas líquidas de R$ 62,5 bilhões das famílias com apostas em 2025.</p>
+      </div>
+    </div>
+
+    <div class="box alert">
+      <h3>Leia com cuidado</h3>
+      <ul class="caveats">
+        <li>A relação é de associação, não uma prova de causa. Os números coincidem no tempo, e a ligação com a proibição é a interpretação do setor.</li>
+        <li>Não há estudo oficial que isole o efeito da proibição de outros fatores, como época do ano, preços e devolução de saldos aos apostadores.</li>
+        <li>A metodologia completa não foi publicada em detalhe.</li>
+      </ul>
+    </div>
+    <p class="pull">Para a live: é um bom ponto para discutir para onde vai o dinheiro das famílias de menor renda quando a aposta sai da rotina.</p>
+  </div>
+</section>
+
+<!-- 10 DOSSIÊ ATENÇÃO 1 -->
+<section class="page wide" id="telas" data-page="10">
+  <div class="page-in">
+    <div class="folio"><span>Dossiê atenção · parte 1</span><span>pág. 10</span></div>
+    <p class="kicker">Redes sociais e meios digitais</p>
+    <h2>O que as telas fazem com a nossa atenção</h2>
+    <div class="pareto">
+      <span class="p-tag">80/20 · o essencial</span>
+      <ol>
+        <li>Em cerca de 20 anos, o tempo que conseguimos manter o foco numa tela caiu de <b>2 minutos e meio para 47 segundos</b>.</li>
+        <li>O maior problema não é o tempo de tela em si. É a <b>troca constante de foco</b>: cada troca gasta energia mental e aumenta o estresse.</li>
+        <li>O efeito vai além da concentração: atinge <b>memória, emoções e produtividade</b>.</li>
+      </ol>
+    </div>
+
+    <div class="box">
+      <h3>Quanto tempo o foco dura numa tela</h3>
+      <div class="span-chart" role="img" aria-label="Tempo médio de atenção numa tela: 150 segundos em 2004, 75 segundos por volta de 2012 e 47 segundos nos anos recentes">
+        <div class="sc"><span class="l num">2004</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">2,5 min</span></div>
+        <div class="sc"><span class="l num">~2012</span><div class="track"><div class="fill" style="width:50%"></div></div><span class="v num">75 s</span></div>
+        <div class="sc"><span class="l num">hoje</span><div class="track"><div class="fill hot" style="width:31.3%"></div></div><span class="v num">47 s</span></div>
+      </div>
+      <p class="note" style="margin-top:12px">Metade das medições ficou em 40 segundos ou menos. Pesquisa de Gloria Mark (Universidade da Califórnia, Irvine), em entrevista à APA em 2023. Ela também observou que trabalhadores checam o e-mail, em média, <b>77 vezes por dia</b>.</p>
+    </div>
+
+    <div class="areas">
+      <div class="area"><span class="a-ic">◎</span><h4>Atenção</h4><p>Quanto mais informação disponível, menos atenção sobra para cada coisa. A mente passa a pular de um estímulo para outro.</p></div>
+      <div class="area"><span class="a-ic">▤</span><h4>Memória</h4><p>Lembramos menos o que sabemos que está "a um clique" (efeito Google). Vídeos curtos atrapalham a memória de lembrar de fazer algo planejado. A simples presença do celular reduz o desempenho.</p></div>
+      <div class="area"><span class="a-ic">♡</span><h4>Emoções</h4><p>Ansiedade, solidão e autoestima presa às curtidas. Medo de ficar de fora (FOMO) e medo de ficar off-line (nomofobia).</p></div>
+      <div class="area"><span class="a-ic">▲</span><h4>Produtividade</h4><p>Quem troca de foco mais rápido tem mais estresse e comete mais erros. Retomar uma tarefa exige reconstruir onde se parou.</p></div>
+      <div class="area"><span class="a-ic">◇</span><h4>Pensamento</h4><p>O consumo rápido e fragmentado favorece um pensamento superficial e prejudica a reflexão profunda e as decisões.</p></div>
+      <div class="area"><span class="a-ic">☾</span><h4>Sono</h4><p>Dormir menos cria uma "dívida de sono" que encurta ainda mais a atenção e empurra para atividades leves, como rolar o feed.</p></div>
+    </div>
+
+    <div class="box alert">
+      <h3>E no trabalho?</h3>
+      <div class="stats">
+        <div class="stat b"><b class="num">81%</b><span>usam redes sociais durante o expediente</span></div>
+        <div class="stat b"><b class="num">52 min</b><span>por dia em redes, fora das tarefas de trabalho</span></div>
+        <div class="stat b"><b class="num">9,3%</b><span>da jornada perdida por dia</span></div>
+        <div class="stat b"><b class="num">80%</b><span>querem que a empresa tenha uma regra clara (79% das empresas não têm)</span></div>
+      </div>
+      <p class="note" style="margin-top:12px">Pesquisa com 62 profissionais de vários setores na Índia, durante a pandemia (Ahmad, Hussain e Ahmad, 2022). Amostra pequena: use como alerta, não como média nacional. O motivo mais citado para usar as redes no expediente foi fugir do estresse do trabalho.</p>
+    </div>
+    <p class="pull">Horas de tela, sozinhas, não dizem tudo. O que pesa é o contexto, o conteúdo e quantas vezes a atenção é arrancada da tarefa.</p>
+  </div>
+</section>
+
+<!-- 11 DOSSIÊ ATENÇÃO 2 -->
+<section class="page wide" id="atencao" data-page="11">
+  <div class="page-in">
+    <div class="folio"><span>Dossiê atenção · parte 2</span><span>pág. 11</span></div>
+    <p class="kicker">Como funciona</p>
+    <h2>A atenção é um filtro que cansa e que se aprende</h2>
+    <div class="pareto">
+      <span class="p-tag">80/20 · o essencial</span>
+      <ol>
+        <li>A atenção é um <b>filtro com capacidade limitada</b>: escolhe o que importa, prioriza e bloqueia distrações. Usada sem parar, ela se esgota.</li>
+        <li>Ela funciona em <b>dois modos</b>. O foco com esforço gasta energia. A atenção leve, sem esforço, como olhar uma paisagem, recarrega.</li>
+        <li>A atenção <b>se aprende</b>: o que praticamos todos os dias, seja pular de aba em aba ou sustentar o foco com pausas, vira o nosso jeito de prestar atenção.</li>
+      </ol>
+    </div>
+
+    <div class="modes">
+      <div class="mode spend">
+        <div class="batt" aria-hidden="true"><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i></div>
+        <h4>Atenção dirigida</h4>
+        <p class="m-sub">gasta energia</p>
+        <p>É o foco com esforço: ler um contrato, fazer contas, atravessar uma rua movimentada. Para funcionar, precisa bloquear o que distrai. Usada por horas, gera fadiga, erros e irritação.</p>
+      </div>
+      <div class="mode fill">
+        <div class="batt" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <h4>Fascinação suave</h4>
+        <p class="m-sub">recarrega</p>
+        <p>É a atenção que acontece sem esforço: nuvens, plantas, uma caminhada. Enquanto ela trabalha, a atenção dirigida descansa. É a base da Teoria da Restauração da Atenção.</p>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>O custo de cada interrupção</h3>
+      <div class="switch" role="img" aria-label="Tarefa interrompida por uma notificação; depois da interrupção há um tempo para se reorientar antes de voltar ao ritmo">
+        <span class="sw task" style="flex:4">tarefa</span>
+        <span class="sw ping" style="flex:1.2" title="notificação"></span>
+        <span class="sw lost" style="flex:1.6" title="reorientar"></span>
+        <span class="sw task" style="flex:3">tarefa</span>
+        <span class="sw ping" style="flex:1.2" title="mensagem"></span>
+        <span class="sw lost" style="flex:1.6" title="reorientar"></span>
+        <span class="sw task" style="flex:2">tarefa</span>
+      </div>
+      <div class="key" style="margin-top:10px"><span><i style="background:var(--blue)"></i>tarefa</span><span><i style="background:var(--orange)"></i>notificação ou mensagem</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 3px,transparent 3px 6px)"></i>tempo para se reorientar</span></div>
+      <p class="note" style="margin-top:12px">Esquema ilustrativo. Cada troca obriga a mente a reconstruir onde estava. Mesmo interrupções curtas somam tempo perdido e estresse ao longo do dia.</p>
+    </div>
+
+    <div class="two">
+      <div class="box">
+        <h3>O foco tem horário</h3>
+        <div class="day" role="img" aria-label="Picos de foco no fim da manhã e entre 14h e 15h">
+          <div class="d-bar"><span style="left:0;width:20%" class="z"></span><span style="left:20%;width:20%" class="z pk">pico</span><span style="left:40%;width:20%" class="z"></span><span style="left:60%;width:20%" class="z pk">pico</span><span style="left:80%;width:20%" class="z"></span></div>
+          <div class="d-axis num"><span>8h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span></div>
+        </div>
+        <p class="note" style="margin-top:10px">Esquema a partir das medições de Gloria Mark: o foco costuma subir no fim da manhã e de novo por volta das 14h–15h. As atividades automáticas se espalham pelo dia.</p>
+      </div>
+      <div class="box">
+        <h3>Onde mora o flow</h3>
+        <svg class="flowc" viewBox="0 0 300 220" role="img" aria-label="Esquema do flow: desafio alto com pouca habilidade gera ansiedade; desafio baixo com muita habilidade gera tédio; o equilíbrio entre os dois é o flow">
+          <path class="fl-band" d="M40 190 L60 190 L280 30 L280 10 L260 10 L40 170 Z"/>
+          <line class="fl-ax" x1="40" y1="190" x2="285" y2="190"/>
+          <line class="fl-ax" x1="40" y1="190" x2="40" y2="8"/>
+          <text class="fl-t" x="78" y="52">Ansiedade</text>
+          <text class="fl-t" x="190" y="170">Tédio</text>
+          <text class="fl-t hot" x="150" y="108" transform="rotate(-36 150 108)">Flow</text>
+          <text class="fl-a" x="285" y="208" text-anchor="end">habilidade →</text>
+          <text class="fl-a" x="30" y="12" text-anchor="end" transform="rotate(-90 30 12)">desafio →</text>
+        </svg>
+        <p class="note" style="margin-top:6px">Flow é o estado em que o tempo "some". Ele aparece quando o desafio está na medida da habilidade e protege contra a fadiga e o burnout.</p>
+      </div>
+    </div>
+
+    <div class="box learn">
+      <h3>A atenção é aprendida</h3>
+      <p>Uma pesquisa com estudantes no Rio de Janeiro (Sancovschi e Kastrup, 2013) mostrou que o uso do computador e da internet durante o estudo está ensinando um tipo de atenção:</p>
+      <div class="kinds">
+        <div><b>Saltitante e sem ritmo</b><span>pula de foco em foco, por sobressaltos</span></div>
+        <div><b>Suficiente</b><span>nem plena, nem ausente: só o bastante para a tarefa</span></div>
+        <div><b>Dividida</b><span>várias telas e tarefas ao mesmo tempo</span></div>
+      </div>
+      <p>A diferença está nas pausas. A pausa que <b>dá ritmo</b> deixa o pensamento respirar e se reconectar. A pausa que vira outra demanda, como responder mensagens, só <b>interrompe</b>. As autoras também veem uma brecha: a mesma tecnologia pode alimentar uma atenção curiosa e com vontade de saber.</p>
+      <p class="note">Estudos clássicos de vigilância mostram que a capacidade de detectar sinais cai depois dos primeiros 30 minutos de tarefa contínua.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 DOSSIÊ ATENÇÃO 3 -->
+<section class="page wide" id="recuperar" data-page="12">
+  <div class="page-in">
+    <div class="folio"><span>Dossiê atenção · parte 3</span><span>pág. 12</span></div>
+    <p class="kicker">Orientações e práticas</p>
+    <h2>Como recuperar a atenção</h2>
+    <div class="pareto">
+      <span class="p-tag">80/20 · o essencial</span>
+      <ol>
+        <li><b>Proteja o recurso:</b> durma bem, faça pausas nos pontos certos e corte as interrupções.</li>
+        <li><b>Recarregue fora da tela:</b> natureza, caminhada e pausas sem celular devolvem a energia da atenção.</li>
+        <li><b>Mude o ambiente, não só a força de vontade:</b> notificações, regras do time e o direito de desconectar fazem mais diferença do que "se esforçar mais".</li>
+      </ol>
+    </div>
+
+    <h3 class="sec-h">Para você</h3>
+    <div class="practices">
+      <div class="pr"><span class="pn num">01</span><div><h4>Pause no ponto certo</h4><p>Faça a pausa no fim de um parágrafo ou de uma etapa, não no meio. Interromper no meio custa mais energia e mais estresse.</p></div></div>
+      <div class="pr"><span class="pn num">02</span><div><h4>Siga o seu ritmo</h4><p>Deixe as tarefas difíceis para os seus picos de foco, como o fim da manhã ou o início da tarde. As tarefas automáticas ficam para os vales.</p></div></div>
+      <div class="pr"><span class="pn num">03</span><div><h4>Durma perto de 8 horas</h4><p>A dívida de sono encurta a atenção e aumenta a vontade de rolar o feed.</p></div></div>
+      <div class="pr"><span class="pn num">04</span><div><h4>Recarregue no verde</h4><p>Uma caminhada num parque restaura mais a atenção do que uma rua movimentada. Quando não der, uma janela com vista ou plantas por perto já ajudam.</p></div></div>
+      <div class="pr"><span class="pn num">05</span><div><h4>Tire o celular da vista</h4><p>Desligue as notificações que não são urgentes e deixe o aparelho longe da mesa. A simples presença dele já atrapalha.</p></div></div>
+      <div class="pr"><span class="pn num">06</span><div><h4>Trabalhe em blocos</h4><p>Defina blocos de foco com uma meta clara. A técnica Pomodoro funciona para muita gente, mas ajuste o tempo ao seu limite.</p></div></div>
+      <div class="pr"><span class="pn num">07</span><div><h4>Pausa de verdade é sem tela</h4><p>Olhar pela janela, andar ou tomar um café descansa. Trocar uma tela por outra, não.</p></div></div>
+      <div class="pr"><span class="pn num">08</span><div><h4>Treine a atenção leve</h4><p>Práticas de atenção plena, de respiração e de consciência do corpo fortaleceram a atenção em 1 a 4 semanas de treino.</p></div></div>
+    </div>
+
+    <h3 class="sec-h">Para a empresa</h3>
+    <div class="practices co">
+      <div class="pr"><span class="pn">✓</span><div><h4>Regra clara para as redes</h4><p>A maioria das empresas não tem uma política, e a maioria dos funcionários quer uma.</p></div></div>
+      <div class="pr"><span class="pn">✓</span><div><h4>Janelas de silêncio</h4><p>Horários do dia sem e-mail e sem mensagem para todo o time trabalhar com foco.</p></div></div>
+      <div class="pr"><span class="pn">✓</span><div><h4>Direito de desconectar</h4><p>Ninguém deve ser cobrado por não responder fora do horário de trabalho.</p></div></div>
+      <div class="pr"><span class="pn">✓</span><div><h4>Respiro entre reuniões</h4><p>Evite reuniões em sequência e deixe intervalos entre tarefas exigentes.</p></div></div>
+      <div class="pr"><span class="pn">✓</span><div><h4>Pausas que recarregam</h4><p>Espaços com verde e atividade física dão uma alternativa a usar as redes para fugir do estresse.</p></div></div>
+      <div class="pr"><span class="pn">✓</span><div><h4>Bloqueio com critério</h4><p>Bloquear sites ajuda principalmente quem tem mais dificuldade de autocontrole. Combine a ferramenta com orientação e metas claras.</p></div></div>
+    </div>
+
+    <div class="box challenge">
+      <h3>Desafio de 7 dias</h3>
+      <p class="muted" style="font-size:15px;margin-bottom:10px">Marque o que você já fez. Fica salvo só neste aparelho.</p>
+      <ul class="check" id="desafio">
+        <li><label><input type="checkbox" id="d1"> Dia 1 · Desligar as notificações que não são urgentes</label></li>
+        <li><label><input type="checkbox" id="d2"> Dia 2 · Tirar os aplicativos de redes da tela inicial</label></li>
+        <li><label><input type="checkbox" id="d3"> Dia 3 · Fazer um bloco de 45 minutos com o celular fora da mesa</label></li>
+        <li><label><input type="checkbox" id="d4"> Dia 4 · Fazer uma pausa de 10 minutos ao ar livre, sem tela</label></li>
+        <li><label><input type="checkbox" id="d5"> Dia 5 · Deixar o celular fora do quarto na hora de dormir</label></li>
+        <li><label><input type="checkbox" id="d6"> Dia 6 · Marcar os seus picos de foco e colocar a tarefa mais difícil num deles</label></li>
+        <li><label><input type="checkbox" id="d7"> Dia 7 · Anotar quanto tempo passou nas redes e comparar com o dia 1</label></li>
+      </ul>
+      <p class="done" id="desafio-ok" hidden>Desafio completo. Repare na diferença no seu foco e no seu humor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 PREVENÇÃO -->
+<section class="page wide" id="prevencao" data-page="13">
+  <div class="page-in">
+    <div class="folio"><span>Capítulo 6</span><span>pág. 13</span></div>
+    <p class="kicker">Prevenção</p>
+    <h2>O caminho de volta</h2>
+    <p class="lede">Sair do ciclo pede duas frentes ao mesmo tempo: organizar o dinheiro e cuidar da cabeça. E a empresa tem um papel nas duas.</p>
+    <div class="prev">
+      <div class="col f">
+        <h3>Educação financeira</h3>
+        <p class="who">o bolso, com Jaymara Kalb</p>
+        <ul>
+          <li>Anotar tudo o que entra e o que sai no mês</li>
+          <li>Listar as dívidas e começar pelas de juros mais altos</li>
+          <li>Negociar antes de atrasar e evitar crédito para pagar crédito</li>
+          <li>Montar uma reserva, mesmo que pequena</li>
+          <li>Desconfiar de qualquer promessa de dinheiro fácil</li>
+        </ul>
+      </div>
+      <div class="col m">
+        <h3>Saúde emocional</h3>
+        <p class="who">a cabeça, com Romilto Lopes</p>
+        <ul>
+          <li>Reconhecer os sinais: ansiedade, insônia, irritação</li>
+          <li>Falar sobre o problema com alguém de confiança</li>
+          <li>Procurar ajuda profissional sem vergonha</li>
+          <li>Afastar os gatilhos: aplicativos, grupos e notificações</li>
+        </ul>
+      </div>
+      <a class="col e goto" href="#empresas">
+        <h3>O papel da empresa</h3>
+        <p class="who">RH, SST e liderança</p>
+        <p>Regimento interno, integração, riscos psicossociais, educação financeira, gestão de acessos, canais de escuta, sugestões e atendimento inteligente.</p>
+        <span class="goto-l">Ver as 8 frentes para empresas →</span>
+      </a>
+    </div>
+    <div class="cta">
+      <span class="tag">No fim da live</span>
+      <h3>Orçamento Fácil e in foco</h3>
+      <p>O curso Orçamento Fácil, da Jaymara Kalb, na estud.you, e o in foco, para controle e prevenção de acessos a redes sociais e sites de apostas, com condições especiais de esquenta Black Friday.</p>
+    </div>
+    <p class="help">Precisa conversar agora? O CVV oferece apoio emocional gratuito 24 horas pelo telefone 188 e em cvv.org.br.</p>
+  </div>
+</section>
+
+<!-- 14 PARA EMPRESAS -->
+<section class="page wide" id="empresas" data-page="14">
+  <div class="page-in">
+    <div class="folio"><span>Seção especial · para empresas</span><span>pág. 14</span></div>
+    <p class="kicker">RH, SST e liderança</p>
+    <h2>O papel da empresa em 8 frentes</h2>
+    <p class="lede">A empresa não controla a vida financeira de ninguém, mas controla o ambiente de trabalho: as regras, a clareza das funções, a escuta e as ferramentas. É aí que ela reduz o estresse e protege a saúde e o foco das pessoas.</p>
+    <div class="pareto">
+      <span class="p-tag">80/20 · o essencial</span>
+      <ol>
+        <li><b>Regras claras:</b> todos sabem o que se espera deles e como agir no trabalho.</li>
+        <li><b>Pessoas preparadas e ouvidas:</b> integração, avaliação de riscos psicossociais e canais de escuta que funcionam.</li>
+        <li><b>Ferramentas que tiram peso da equipe:</b> gestão de acessos à internet e atendimento automatizado.</li>
+      </ol>
+    </div>
+
+    <nav class="fronts" aria-label="As 8 frentes">
+      <a href="#fr-1"><b>1</b>Regimento interno</a>
+      <a href="#fr-2"><b>2</b>Integração</a>
+      <a href="#fr-3"><b>3</b>Riscos psicossociais</a>
+      <a href="#fr-4"><b>4</b>Educação financeira</a>
+      <a href="#fr-5"><b>5</b>Acessos à internet</a>
+      <a href="#fr-6"><b>6</b>Escuta e denúncias</a>
+      <a href="#fr-7"><b>7</b>Sugestões e melhorias</a>
+      <a href="#fr-8"><b>8</b>Atendimento inteligente</a>
+    </nav>
+
+    <h3 class="grp">Regras e clareza</h3>
+    <div class="fr-grid">
+      <article class="fr" id="fr-1">
+        <span class="fr-n">1</span>
+        <h4>Criar um regimento interno de conduta</h4>
+        <p>Um documento simples que diz como as pessoas devem agir no ambiente de trabalho e o que acontece quando a regra é quebrada.</p>
+        <ul>
+          <li>Uso de celular, internet e redes sociais durante a jornada</li>
+          <li>Respeito, assédio e relacionamento entre colegas e lideranças</li>
+          <li>Sigilo de informações e uso dos equipamentos da empresa</li>
+          <li>Medidas aplicadas quando a regra não é cumprida</li>
+        </ul>
+        <p class="fr-tip">Divulgue na admissão e reforce sempre que a regra mudar.</p>
+      </article>
+      <article class="fr" id="fr-2">
+        <span class="fr-n">2</span>
+        <h4>Treinar para integrar</h4>
+        <p>Quem entra precisa saber com clareza o que faz, como faz e a quem recorrer. Falta de clareza na função é uma fonte direta de estresse.</p>
+        <ul>
+          <li>Função, responsabilidades e metas descritas por escrito</li>
+          <li>Tarefas e processos de trabalho explicados passo a passo</li>
+          <li>Quem é a liderança e quem apoia cada etapa</li>
+          <li>Reforço do treinamento sempre que um processo mudar</li>
+        </ul>
+      </article>
+    </div>
+
+    <h3 class="grp">Saúde e prevenção</h3>
+    <div class="fr-grid">
+      <article class="fr" id="fr-3">
+        <span class="fr-n">3</span>
+        <h4>Avaliar os riscos psicossociais</h4>
+        <p>A NR-01 exige que a empresa identifique e avalie os fatores de risco psicossociais ligados à organização do trabalho e inclua as medidas de prevenção no seu gerenciamento de riscos (PGR).</p>
+        <ul>
+          <li>Excesso de demanda, metas e ritmo de trabalho</li>
+          <li>Falta de clareza nas funções e pouca autonomia</li>
+          <li>Pouco apoio da liderança e falta de reconhecimento</li>
+          <li>Conflitos, assédio e problemas de relacionamento</li>
+        </ul>
+        <p class="fr-tip">Avaliar é o começo: o resultado precisa virar um plano de ação acompanhado.</p>
+      </article>
+      <article class="fr" id="fr-4">
+        <span class="fr-n">4</span>
+        <h4>Manter a educação financeira</h4>
+        <p>Educação financeira não é uma palestra única. É um programa contínuo que ajuda cada colaborador a organizar o próprio orçamento, planejar e se proteger de promessas de dinheiro fácil.</p>
+        <div class="sol">
+          <span class="sol-tag">Solução</span>
+          <h5>Orçamento Fácil</h5>
+          <p>Curso da economista Jaymara Kalb, na estud.you, para o colaborador aprender a montar e manter o próprio orçamento.</p>
+          <a class="sol-link" href="https://ead.estudyou.com/curso/orcamentofacil" target="_blank" rel="noopener">Ver o curso</a>
+        </div>
+      </article>
+    </div>
+
+    <h3 class="grp">Ambiente digital</h3>
+    <article class="fr wide-fr" id="fr-5">
+      <span class="fr-n">5</span>
+      <h4>Fazer a gestão dos acessos à internet na jornada</h4>
+      <p>Definir o que pode e o que não pode ser acessado durante o trabalho protege o foco da equipe e também a segurança da empresa.</p>
+      <div class="risks">
+        <span>Excesso de redes sociais</span><span>Sites de apostas</span><span>Golpes de boleto</span><span>Phishing</span>
+      </div>
+      <div class="sol big">
+        <span class="sol-tag">Solução</span>
+        <h5>in foco</h5>
+        <p>Gestão de acessos à internet para empresas. Com o in foco, a empresa controla e previne o acesso a redes sociais e a sites de apostas durante a jornada e reduz a exposição da equipe a golpes de boleto e a páginas de phishing. Resultado: mais foco no trabalho e menos risco para os dados e o caixa da empresa.</p>
+        <a class="sol-link" href="https://infoco.estudyou.com" target="_blank" rel="noopener">infoco.estudyou.com</a>
+      </div>
+    </article>
+
+    <h3 class="grp">Escuta e participação</h3>
+    <div class="fr-grid">
+      <article class="fr" id="fr-6">
+        <span class="fr-n">6</span>
+        <h4>Criar canais de escuta, orientação e denúncia</h4>
+        <p>As pessoas precisam de um lugar seguro para pedir orientação e para relatar situações que violam as políticas da empresa. E a empresa precisa apurar cada caso com seriedade.</p>
+        <ul>
+          <li>Canal de escuta e orientação para dúvidas e pedidos de ajuda</li>
+          <li>Canal de denúncias com sigilo para relatar violações</li>
+          <li>Processo claro de apuração, com prazo e retorno</li>
+        </ul>
+        <p class="fr-tip">Empresas obrigadas a ter CIPA também devem manter procedimentos para receber e acompanhar denúncias de assédio (Lei 14.457/2022).</p>
+        <div class="sol">
+          <span class="sol-tag">Solução</span>
+          <h5>Denuncyou</h5>
+          <p>Canal de denúncias para a empresa receber relatos com segurança e sigilo, acompanhar cada caso e apurar o que viola as suas políticas.</p>
+          <a class="sol-link" href="https://denuncyou.com.br" target="_blank" rel="noopener">denuncyou.com.br</a>
+        </div>
+      </article>
+      <article class="fr" id="fr-7">
+        <span class="fr-n">7</span>
+        <h4>Abrir um canal de sugestões e melhorias</h4>
+        <p>Quem executa o trabalho todos os dias sabe onde o processo trava. Um canal de sugestões transforma essa experiência em melhorias e faz o colaborador se sentir parte da solução.</p>
+        <ul>
+          <li>Receber ideias de melhoria dos processos de trabalho</li>
+          <li>Analisar, responder e mostrar o que foi implantado</li>
+          <li>Reconhecer quem contribuiu</li>
+        </ul>
+        <div class="sol">
+          <span class="sol-tag">Solução</span>
+          <h5>Denuncyou para a gestão colaborativa</h5>
+          <p>Além das denúncias, o Denuncyou recebe sugestões de melhoria. A equipe propõe, a gestão analisa e dá retorno, e as decisões passam a ser construídas junto com quem faz o trabalho.</p>
+          <a class="sol-link" href="https://denuncyou.com.br" target="_blank" rel="noopener">denuncyou.com.br</a>
+        </div>
+      </article>
+    </div>
+
+    <h3 class="grp">Operação</h3>
+    <article class="fr wide-fr" id="fr-8">
+      <span class="fr-n">8</span>
+      <h4>Reduzir o estresse no atendimento ao cliente</h4>
+      <p>Mensagens chegando por vários canais, cliente esperando e cobrança por rapidez: o atendimento é uma das áreas mais desgastantes. Automações, agentes de IA e uma estrutura organizada tiram da equipe o trabalho repetitivo e deixam as pessoas livres para o que exige atenção humana.</p>
+      <div class="sol big">
+        <span class="sol-tag">Solução</span>
+        <h5>Chatyou</h5>
+        <p>Plataforma de atendimento que reúne WhatsApp, Instagram, Messenger e Telegram num só painel. Distribui as conversas automaticamente entre os atendentes, permite transferir entre setores e mostra relatórios de produtividade e SLA em tempo real. Menos caos na fila, mais controle para a gestão e menos pressão sobre a equipe.</p>
+        <a class="sol-link" href="https://chatyou.chat" target="_blank" rel="noopener">chatyou.chat</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- 15 MAPA MENTAL -->
+<section class="page wide" id="mapa" data-page="15">
+  <div class="page-in">
+    <div class="folio"><span>Mapa mental</span><span>pág. 15</span></div>
+    <h2>A live em uma página</h2>
+    <div class="mm-radial">
+      <svg viewBox="0 0 1000 640" role="img" aria-label="Mapa mental com seis ramos ao redor de Do Boleto ao Burnout">
+        <path class="lnk c-o" d="M352 296 C320 296 330 105 290 105"/>
+        <path class="lnk c-o" d="M330 320 L290 320"/>
+        <path class="lnk c-b" d="M352 344 C320 344 330 535 290 535"/>
+        <path class="lnk c-b" d="M648 296 C680 296 670 105 710 105"/>
+        <path class="lnk c-k" d="M670 320 L710 320"/>
+        <path class="lnk c-g" d="M648 344 C680 344 670 535 710 535"/>
+        <ellipse class="ctr" cx="500" cy="320" rx="170" ry="66"/>
+        <text class="ctr-t" x="500" y="318" text-anchor="middle">Do Boleto ao Burnout</text>
+        <text class="ctr-s" x="500" y="344" text-anchor="middle">LIVE · 17/11 · 19H30</text>
+
+        <rect class="bx c-o f-o" x="30" y="30" width="260" height="150" rx="18"/>
+        <text class="tt" x="50" y="66">1 · Economia</text>
+        <text class="lf" x="50" y="98">Renda pressionada</text>
+        <text class="lf" x="50" y="124">Custo de vida elevado</text>
+        <text class="lf" x="50" y="150">Crédito caro</text>
+
+        <rect class="bx c-o f-o" x="30" y="245" width="260" height="150" rx="18"/>
+        <text class="tt" x="50" y="281">2 · Comportamento</text>
+        <text class="lf" x="50" y="313">Crédito = sobrevivência</text>
+        <text class="lf" x="50" y="339">Fintechs e bancos digitais</text>
+        <text class="lf" x="50" y="365">Crédito a um toque</text>
+
+        <rect class="bx c-b f-b" x="30" y="460" width="260" height="150" rx="18"/>
+        <text class="tt" x="50" y="496">3 · Apostas</text>
+        <text class="lf" x="50" y="528">Dinheiro rápido</text>
+        <text class="lf" x="50" y="554">Dopamina = vício</text>
+        <text class="lf" x="50" y="580">Falácia do jogador</text>
+
+        <rect class="bx c-b f-b" x="710" y="30" width="260" height="150" rx="18"/>
+        <text class="tt" x="730" y="66">4 · Endividamento</text>
+        <text class="lf" x="730" y="98">41% cortaram consumo</text>
+        <text class="lf" x="730" y="124">29% nome negativado</text>
+        <text class="lf" x="730" y="150">Financeiro × familiar</text>
+
+        <rect class="bx c-k f-k" x="710" y="245" width="260" height="150" rx="18"/>
+        <text class="tt" x="730" y="281">5 · Saúde emocional</text>
+        <text class="lf" x="730" y="313">Ansiedade e insônia</text>
+        <text class="lf" x="730" y="339">Conflitos familiares</text>
+        <text class="lf" x="730" y="365">Produtividade → burnout</text>
+
+        <rect class="bx c-g f-g" x="710" y="460" width="260" height="150" rx="18"/>
+        <text class="tt" x="730" y="496">6 · Prevenção</text>
+        <text class="lf" x="730" y="528">Educação financeira</text>
+        <text class="lf" x="730" y="554">Saúde emocional</text>
+        <text class="lf" x="730" y="580">Empresa e NR-01</text>
+      </svg>
+    </div>
+    <div class="mm-tree">
+      <div class="mm-root">Do Boleto ao <em>Burnout</em></div>
+      <ul class="mm-branches">
+        <li class="mm-b"><div class="card"><h4>1 · Economia</h4><div class="leaves"><span>Renda pressionada</span><span>Custo de vida elevado</span><span>Crédito caro</span></div></div></li>
+        <li class="mm-b"><div class="card"><h4>2 · Comportamento</h4><div class="leaves"><span>Crédito = sobrevivência</span><span>Fintechs e bancos digitais</span><span>Crédito a um toque</span></div></div></li>
+        <li class="mm-b b"><div class="card"><h4>3 · Apostas</h4><div class="leaves"><span>Dinheiro rápido</span><span>Dopamina = vício</span><span>Falácia do jogador</span></div></div></li>
+        <li class="mm-b b"><div class="card"><h4>4 · Endividamento</h4><div class="leaves"><span>41% cortaram consumo</span><span>29% nome negativado</span><span>Financeiro × familiar</span></div></div></li>
+        <li class="mm-b k"><div class="card"><h4>5 · Saúde emocional</h4><div class="leaves"><span>Ansiedade e insônia</span><span>Conflitos familiares</span><span>Produtividade → burnout</span></div></div></li>
+        <li class="mm-b g"><div class="card"><h4>6 · Prevenção</h4><div class="leaves"><span>Educação financeira</span><span>Saúde emocional</span><span>Empresa e NR-01</span></div></div></li>
+      </ul>
+    </div>
+    <p class="note">Laranja: as causas. Azul: o mecanismo. Escuro: a consequência. Verde: a saída.</p>
+  </div>
+</section>
+
+<!-- 16 PRÓXIMOS PASSOS -->
+<section class="page wide" id="proximos-passos" data-page="16">
+  <div class="page-in">
+    <div class="folio"><span>Próximos passos</span><span>pág. 16</span></div>
+    <p class="kicker">Da conversa para a prática</p>
+    <h2>Comece agora</h2>
+
+    <a class="cta-hero" href="https://ead.estudyou.com/curso/orcamentofacil" target="_blank" rel="noopener">
+      <span class="ch-tag">Curso de finanças · estud.you</span>
+      <span class="ch-title">Orçamento Fácil</span>
+      <span class="ch-text">Com a economista Jaymara Kalb. Aprenda a montar o seu orçamento, organizar as contas e sair do ciclo das dívidas, no seu ritmo e de onde estiver.</span>
+      <span class="ch-btn">Quero fazer o curso →</span>
+    </a>
+
+    <p class="grp">Para empresas</p>
+    <div class="cta-grid">
+      <a class="cta-card" href="https://infoco.estudyou.com" target="_blank" rel="noopener">
+        <span class="cc-name">in foco</span>
+        <span class="cc-what">Gestão de acessos à internet</span>
+        <span class="cc-text">Controle o acesso a redes sociais e a sites de apostas na jornada e proteja a equipe de golpes de boleto e phishing.</span>
+        <span class="cc-btn">Conhecer o in foco →</span>
+      </a>
+      <a class="cta-card" href="https://denuncyou.com.br" target="_blank" rel="noopener">
+        <span class="cc-name">Denuncyou</span>
+        <span class="cc-what">Canal de denúncias e de sugestões</span>
+        <span class="cc-text">Receba relatos com segurança e sigilo, apure cada caso e transforme as ideias da equipe em melhorias.</span>
+        <span class="cc-btn">Conhecer o Denuncyou →</span>
+      </a>
+      <a class="cta-card" href="https://chatyou.chat" target="_blank" rel="noopener">
+        <span class="cc-name">Chatyou</span>
+        <span class="cc-what">Atendimento organizado</span>
+        <span class="cc-text">WhatsApp, Instagram, Messenger e Telegram num só painel, com distribuição automática e relatórios de SLA.</span>
+        <span class="cc-btn">Conhecer o Chatyou →</span>
+      </a>
+      <a class="cta-card" href="https://ead.estudyou.com/curso/orcamentofacil" target="_blank" rel="noopener">
+        <span class="cc-name">Orçamento Fácil</span>
+        <span class="cc-what">Educação financeira para a equipe</span>
+        <span class="cc-text">Ofereça aos colaboradores um caminho prático para organizar o orçamento e se proteger do dinheiro fácil.</span>
+        <span class="cc-btn">Ver o curso →</span>
+      </a>
+    </div>
+
+    <p class="grp">Siga no Instagram</p>
+    <div class="follow">
+      <a href="https://www.instagram.com/estudyou.cursos/" target="_blank" rel="noopener"><b>@estudyou.cursos</b><span>estud.you · onde a live acontece</span></a>
+      <a href="https://www.instagram.com/romiltolopes.br/" target="_blank" rel="noopener"><b>@romiltolopes.br</b><span>Romilto Lopes · psicólogo</span></a>
+      <a href="https://www.instagram.com/jaymara_kalb/" target="_blank" rel="noopener"><b>@jaymara_kalb</b><span>Jaymara Kalb · economista</span></a>
+      <a href="https://www.instagram.com/canaldenuncyou/" target="_blank" rel="noopener"><b>@canaldenuncyou</b><span>Denuncyou</span></a>
+      <a href="https://www.instagram.com/chatyou.chat/" target="_blank" rel="noopener"><b>@chatyou.chat</b><span>Chatyou</span></a>
+      <a href="https://www.instagram.com/souinfoco/" target="_blank" rel="noopener"><b>@souinfoco</b><span>in foco</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- 17 FONTES -->
+<section class="page" id="fontes" data-page="17">
+  <div class="page-in">
+    <div class="folio"><span>Fontes e créditos</span><span>pág. 17</span></div>
+    <h2>De onde vêm os números</h2>
+    <ul class="sources">
+      <li>Abras, dados de vendas do varejo alimentar em outubro de 2026, divulgados pela Agência Brasil. <a href="https://www.cut.org.br/noticias/consumo-de-alimentos-cresce-apos-proibicao-das-bets-no-pais-diz-abras-3200/" target="_blank" rel="noopener">Ler reportagem</a></li>
+      <li>CNDL/SPC Brasil, pesquisa sobre apostas on-line divulgada em novembro de 2025. <a href="https://bnldata.com.br/bets-40-milhoes-de-brasileiros-fizeram-apostas-no-ultimo-ano-mostra-pesquisa-cndl-spc/" target="_blank" rel="noopener">Ler resumo</a></li>
+      <li>Comsefaz, estimativa de perdas das famílias com apostas em 2025, citada no debate sobre a proibição.</li>
+      <li>Gloria Mark, "Why our attention spans are shrinking", podcast Speaking of Psychology, American Psychological Association (APA), 2023. <a href="https://www.apa.org/news/podcasts/speaking-of-psychology/attention-spans" target="_blank" rel="noopener">Ouvir episódio</a></li>
+      <li>Souza, L. C. et al. Impactos cognitivos do uso excessivo das redes sociais: atenção, memória e emoção. Encontros Bibli, v. 31, 2026. <a href="https://doi.org/10.5007/1518-2924.2026.e18315" target="_blank" rel="noopener">Ler artigo</a></li>
+      <li>Ahmad, M. B.; Hussain, A.; Ahmad, F. The use of social media at work place and its influence on the productivity of the employees in the era of COVID-19. SN Business &amp; Economics, 2022. <a href="https://doi.org/10.1007/s43546-022-00335-x" target="_blank" rel="noopener">Ler artigo</a></li>
+      <li>Pham, T. P.; Sanocki, T. Human Attention Restoration, Flow, and Creativity: A Conceptual Integration. Journal of Imaging, 2024. <a href="https://doi.org/10.3390/jimaging10040083" target="_blank" rel="noopener">Ler artigo</a></li>
+      <li>Sancovschi, B.; Kastrup, V. Práticas de estudo contemporâneas e a aprendizagem da atenção. Psicologia &amp; Sociedade, 25(1), 193–202, 2013.</li>
+      <li>Anotações de Romilto Lopes e Jaymara Kalb para a live.</li>
+    </ul>
+    <div class="colophon">
+      <span>Uma publicação estud.you</span>
+      <span>Live Do Boleto ao Burnout · 17/11/2026 · 19h30</span>
+      <span>Ao vivo no Instagram @estudyou.cursos</span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  // código de barras da capa
+  var bars=document.getElementById('bars');
+  if(bars){
+    var w=[3,1,2,1,4,1,1,3,2,1,1,2,3,1,2,4,1,1,2,1,3,2,1,1,4,2,1,3,1,2,1,1,3,1,2,2,1,4,1,2,1,3,1,1,2,3,1,2,1,4,1,1,3,2,1,2,1,1,3,1];
+    var html='';
+    for(var i=0;i<w.length;i++){
+      var gap=(i%2===1);
+      if(gap){html+='<i style="width:'+w[i]+'px;background:transparent"></i>';}
+      else{html+='<i class="'+(i>w.length*0.72?'o':'')+'" style="width:'+(w[i]*1.6).toFixed(1)+'px"></i>';}
+    }
+    bars.innerHTML=html;
+  }
+  // waffles
+  document.querySelectorAll('.waffle').forEach(function(el){
+    var on=+el.getAttribute('data-on'),h='';
+    for(var i=0;i<100;i++){h+='<i class="'+(i<on?'on':'')+'"></i>';}
+    el.innerHTML=h;
+  });
+  // barras por região (escala 0–12%)
+  var data=[["Sul",10.6,9],["MG + ES + interior do RJ",10.6,7.1],["Nordeste",6.5,4.5],["Interior de SP",5.6,5.6],["Grande Rio",4,6],["Centro-Oeste",3.6,3.5],["Grande SP",1.2,5.5]];
+  var reg=document.getElementById('regions');
+  if(reg){
+    var fmt=function(v){return String(v).replace('.',',')+'%';};
+    reg.innerHTML=data.map(function(d){
+      return '<div class="gr"><span class="l">'+d[0]+'</span><div class="pair">'+
+        '<div class="b1" style="width:'+(d[1]/12*100).toFixed(1)+'%"></div>'+
+        '<div class="b2" style="width:'+(d[2]/12*100).toFixed(1)+'%"></div>'+
+        '<span class="num"><b>'+fmt(d[1])+'</b> / '+fmt(d[2])+'</span></div></div>';
+    }).join('');
+  }
+
+  // desafio de 7 dias (salvo só neste navegador)
+  var KEY='desafio-atencao-v1',saved={};
+  try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){saved={};}
+  var boxes=[].slice.call(document.querySelectorAll('#desafio input[type=checkbox]'));
+  var ok=document.getElementById('desafio-ok');
+  function refresh(){ if(ok) ok.hidden=!boxes.every(function(b){return b.checked;}); }
+  boxes.forEach(function(b){
+    b.checked=!!saved[b.id];
+    b.addEventListener('change',function(){saved[b.id]=b.checked;try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){} refresh();});
+  });
+  refresh();
+  // página atual + progresso
+  var pages=[].slice.call(document.querySelectorAll('.page'));
+  var pg=document.getElementById('pgnum'),bar=document.getElementById('progress');
+  function update(){
+    var y=window.scrollY+120,cur=pages[0];
+    for(var i=0;i<pages.length;i++){if(pages[i].offsetTop<=y)cur=pages[i];}
+    if(pg)pg.textContent='pág. '+cur.getAttribute('data-page')+'/17';
+    var max=document.documentElement.scrollHeight-window.innerHeight;
+    if(bar)bar.style.width=(max>0?Math.min(100,window.scrollY/max*100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',update);
+  update();
+})();
+</script>
+
+</body>
+</html>
